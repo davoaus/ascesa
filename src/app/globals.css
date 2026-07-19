@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+
+  /* Paleta ASCESA — brasa sobre carvão */
+  --color-carvao: #131009;
+  --color-carvao-2: #1d1811;
+  --color-carvao-3: #241d13;
+  --color-line: #362c1d;
+
+  --color-marfim: #f0e7d4;
+  --color-muted: #9d9077;
+
+  --color-brasa: #f59a2d;
+  --color-brasa-deep: #e4572e;
+  --color-ouro: #efc75e;
+  --color-aco: #8fb6c9;
+  --color-ok: #a4c46b;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(1100px 520px at 78% -10%, rgba(228, 87, 46, 0.16), transparent 60%),
+    radial-gradient(800px 500px at 8% 110%, rgba(245, 154, 45, 0.08), transparent 55%),
+    var(--color-carvao);
+  color: var(--color-marfim);
+}
