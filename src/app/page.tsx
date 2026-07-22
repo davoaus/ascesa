@@ -1,44 +1,54 @@
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { signOut } from "./entrar/actions";
 import {
   levelProgress,
   worldForLevel,
   minStreakForLevel,
   nextBoss,
-  computeWorkoutXp,
-  setVolume,
 } from "@/lib/game/xp";
 
-// Dados de demonstração (sem banco ainda). Trocar por leitura do Supabase
-// quando a autenticação estiver pronta. Já passam pelo motor de XP real.
-const DEMO = {
-  name: "Davi",
-  xpTotal: 8940,
-  streak: 14,
-};
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-// Um treino de exemplo, para a tela de resumo pós-treino ("o boss final é você").
-const DEMO_WORKOUT = computeWorkoutXp({
-  volumeKg:
-    setVolume(62.5, 8) + setVolume(60, 10) * 3 + setVolume(100, 8) * 3,
-  hadProgression: true,
-  newPr: true,
-  proteinHit: true,
-  waterHit: true,
-});
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name, xp_total, current_streak, longest_streak")
+    .eq("id", user!.id)
+    .single();
 
-export default function Home() {
-  const progress = levelProgress(DEMO.xpTotal);
+  const { data: recent } = await supabase
+    .from("workouts")
+    .select("id, performed_at, total_volume_kg, xp_earned")
+    .order("performed_at", { ascending: false })
+    .limit(3);
+
+  const xpTotal = profile?.xp_total ?? 0;
+  const streak = profile?.current_streak ?? 0;
+  const progress = levelProgress(xpTotal);
   const world = worldForLevel(progress.level);
   const boss = nextBoss(progress.level);
   const streakMin = minStreakForLevel(progress.level + 1);
+  const streakOk = streak >= streakMin;
 
   return (
-    <main className="mx-auto flex min-h-full max-w-md flex-col gap-5 px-5 py-10">
-      <header className="text-center">
-        <p className="text-xs font-black tracking-[0.42em] text-muted">ASCESA</p>
-        <p className="mt-1 text-sm text-muted">O boss final é você.</p>
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-5 py-8">
+      <header className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-black tracking-[0.42em] text-muted">ASCESA</p>
+          <p className="text-sm text-muted">
+            Olá, {profile?.display_name ?? "Atleta"}
+          </p>
+        </div>
+        <form action={signOut}>
+          <button className="text-xs text-muted hover:text-marfim">Sair</button>
+        </form>
       </header>
 
-      {/* Nível + mundo */}
+      {/* Nível + ofensiva */}
       <section className="rounded-2xl border border-line bg-carvao-2 p-5">
         <div className="flex items-baseline justify-between">
           <div>
@@ -49,17 +59,16 @@ export default function Home() {
               Nível {progress.level}
             </p>
           </div>
-          <p className="text-lg font-black text-brasa">🔥 {DEMO.streak}</p>
+          <p className="text-lg font-black text-brasa">🔥 {streak}</p>
         </div>
 
-        {/* Barra de XP */}
         <div className="mt-4">
-          <div className="mb-1 flex justify-between text-xs text-muted tabular-nums">
+          <div className="mb-1 flex justify-between text-xs tabular-nums text-muted">
             <span>
               {progress.xpIntoLevel.toLocaleString("pt-BR")} /{" "}
               {progress.xpForNextLevel.toLocaleString("pt-BR")} XP
             </span>
-            <span>próximo nível</span>
+            <span>{xpTotal.toLocaleString("pt-BR")} XP total</span>
           </div>
           <div className="h-2.5 overflow-hidden rounded-full bg-carvao">
             <div
@@ -69,14 +78,13 @@ export default function Home() {
           </div>
           <p className="mt-2 text-xs text-muted">
             Ofensiva mínima p/ nível {progress.level + 1}:{" "}
-            <span className={DEMO.streak >= streakMin ? "text-ok" : "text-brasa"}>
-              {streakMin} dias {DEMO.streak >= streakMin ? "✓" : ""}
+            <span className={streakOk ? "text-ok" : "text-brasa"}>
+              {streakMin} dias {streakOk ? "✓" : ""}
             </span>
           </p>
         </div>
       </section>
 
-      {/* Próximo boss */}
       {boss && (
         <section className="rounded-2xl border border-line bg-carvao-2 p-5">
           <p className="text-xs font-bold uppercase tracking-widest text-muted">
@@ -86,39 +94,45 @@ export default function Home() {
         </section>
       )}
 
-      {/* Resumo pós-treino */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-5">
-        <p className="text-center text-xs font-black uppercase tracking-[0.3em] text-brasa">
-          Vitória
-        </p>
-        <p className="text-center text-2xl font-black text-marfim">
-          Treino concluído
-        </p>
-        <ul className="mt-4 flex flex-col gap-1.5">
-          {DEMO_WORKOUT.lines.map((line) => (
-            <li
-              key={line.label}
-              className="flex items-center justify-between rounded-lg border border-line bg-carvao px-4 py-2.5 text-sm"
-            >
-              <span className="text-marfim">{line.label}</span>
-              <span className="font-black tabular-nums text-brasa">
-                +{line.xp} XP
-              </span>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-3 flex items-baseline justify-between px-1">
-          <span className="text-xs font-bold uppercase tracking-widest text-muted">
-            Total
-          </span>
-          <span className="text-3xl font-black tabular-nums text-brasa">
-            +{DEMO_WORKOUT.total} XP
-          </span>
-        </div>
-      </section>
+      <Link
+        href="/treino"
+        className="rounded-xl bg-gradient-to-r from-brasa to-ouro px-4 py-4 text-center font-black tracking-wide text-carvao"
+      >
+        Começar treino
+      </Link>
 
-      <p className="text-center text-xs text-muted">
-        Dados de demonstração · motor de XP em <code>src/lib/game</code>
+      {recent && recent.length > 0 && (
+        <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">
+            Últimos treinos
+          </p>
+          <ul className="flex flex-col gap-1.5">
+            {recent.map((w) => (
+              <li key={w.id}>
+                <Link
+                  href={`/treino/${w.id}/resumo`}
+                  className="flex items-center justify-between rounded-lg border border-line bg-carvao px-3 py-2 text-sm hover:border-brasa"
+                >
+                  <span className="text-muted">
+                    {new Date(w.performed_at).toLocaleDateString("pt-BR")}
+                  </span>
+                  <span className="tabular-nums">
+                    <span className="text-muted">
+                      {Number(w.total_volume_kg).toLocaleString("pt-BR")} kg
+                    </span>
+                    <span className="ml-3 font-black text-brasa">
+                      +{w.xp_earned} XP
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <p className="mt-auto pt-4 text-center text-xs text-muted">
+        O boss final é você.
       </p>
     </main>
   );
