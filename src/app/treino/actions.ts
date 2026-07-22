@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { computeWorkoutXp } from "@/lib/game/xp";
-import { GAME_CONFIG } from "@/lib/game/config";
+import { resolveStreak, attributeGains } from "@/lib/game/progression";
 
 export interface LoggedSet {
   exerciseId: string;
@@ -27,12 +27,6 @@ function todayLocal(): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Sao_Paulo",
   }).format(new Date());
-}
-
-function daysBetween(from: string, to: string): number {
-  const a = Date.parse(`${from}T00:00:00Z`);
-  const b = Date.parse(`${to}T00:00:00Z`);
-  return Math.round((b - a) / 86_400_000);
 }
 
 /** 1RM estimado (Epley) — usado para detectar recorde de força. */
@@ -154,20 +148,13 @@ export async function finishWorkout(input: FinishWorkoutInput) {
     .eq("id", user.id)
     .single();
 
-  let streak = profile?.current_streak ?? 0;
-  const last = profile?.last_completed_date ?? null;
-  if (last === today) {
-    // já contou hoje — ofensiva não muda
-  } else if (!last) {
-    streak = 1;
-  } else {
-    const gap = daysBetween(last, today);
-    // MVP: dias de descanso protegidos toleram uma folga curta. A regra
-    // completa (marcar o descanso como protegido no streak_log) entra junto
-    // com a tela de descanso programado.
-    streak =
-      gap <= 1 + GAME_CONFIG.streak.protectedRestDaysPerWeek ? streak + 1 : 1;
-  }
+  const { streak } = resolveStreak(
+    {
+      lastCompletedDate: profile?.last_completed_date ?? null,
+      currentStreak: profile?.current_streak ?? 0,
+    },
+    today,
+  );
 
   await supabase
     .from("profiles")
@@ -185,6 +172,32 @@ export async function finishWorkout(input: FinishWorkoutInput) {
       { user_id: user.id, log_date: today, completed: true },
       { onConflict: "user_id,log_date" },
     );
+
+  // 7. atributos do personagem
+  const gains = attributeGains({
+    volumeKg,
+    streak,
+    sleepHit: input.sleepHit,
+    mobilityHit: input.mobilityHit,
+  });
+  const { data: attrs } = await supabase
+    .from("user_attributes")
+    .select("forca, resistencia, disciplina, mobilidade, saude, velocidade")
+    .eq("user_id", user.id)
+    .single();
+  if (attrs) {
+    await supabase
+      .from("user_attributes")
+      .update({
+        forca: attrs.forca + (gains.forca ?? 0),
+        resistencia: attrs.resistencia + (gains.resistencia ?? 0),
+        disciplina: attrs.disciplina + (gains.disciplina ?? 0),
+        mobilidade: attrs.mobilidade + (gains.mobilidade ?? 0),
+        saude: attrs.saude + (gains.saude ?? 0),
+        velocidade: attrs.velocidade + (gains.velocidade ?? 0),
+      })
+      .eq("user_id", user.id);
+  }
 
   revalidatePath("/", "layout");
   redirect(`/treino/${workout.id}/resumo`);

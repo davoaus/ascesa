@@ -10,15 +10,28 @@ export interface ExerciseOption {
   primary_muscle: string | null;
 }
 
+export interface RoutineItem {
+  id: string;
+  name: string;
+  targetSets: number | null;
+  targetReps: number | null;
+}
+
 const inputClass =
   "w-full rounded-lg border border-line bg-carvao px-3 py-2.5 text-center text-marfim tabular-nums focus:border-brasa focus:outline-none";
 
 export default function WorkoutLogger({
   exercises,
+  routine = [],
+  programName = null,
 }: {
   exercises: ExerciseOption[];
+  routine?: RoutineItem[];
+  programName?: string | null;
 }) {
-  const [exerciseId, setExerciseId] = useState(exercises[0]?.id ?? "");
+  const [exerciseId, setExerciseId] = useState(
+    routine[0]?.id ?? exercises[0]?.id ?? "",
+  );
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
   const [sets, setSets] = useState<LoggedSet[]>([]);
@@ -71,8 +84,46 @@ export default function WorkoutLogger({
     });
   }
 
+  function pickRoutine(item: RoutineItem) {
+    setExerciseId(item.id);
+    if (item.targetReps) setReps(String(item.targetReps));
+  }
+
   return (
     <div className="flex flex-col gap-4">
+      {/* programa do dia — a rotina pré-carregada */}
+      {routine.length > 0 && (
+        <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">
+            {programName ?? "Meu programa"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {routine.map((item) => {
+              const active = item.id === exerciseId;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => pickRoutine(item)}
+                  className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                    active
+                      ? "border-brasa bg-brasa/10 text-brasa"
+                      : "border-line bg-carvao text-muted hover:text-marfim"
+                  }`}
+                >
+                  {item.name}
+                  {item.targetSets && item.targetReps ? (
+                    <span className="ml-1 text-xs opacity-70">
+                      {item.targetSets}×{item.targetReps}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* seletor + entrada de série */}
       <section className="rounded-2xl border border-line bg-carvao-2 p-4">
         <select

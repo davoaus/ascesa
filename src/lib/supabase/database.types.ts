@@ -160,6 +160,72 @@ export type Database = {
         }
         Relationships: []
       }
+      program_exercises: {
+        Row: {
+          exercise_id: string
+          id: string
+          program_id: string
+          sort_order: number
+          target_reps: number | null
+          target_sets: number | null
+        }
+        Insert: {
+          exercise_id: string
+          id?: string
+          program_id: string
+          sort_order?: number
+          target_reps?: number | null
+          target_sets?: number | null
+        }
+        Update: {
+          exercise_id?: string
+          id?: string
+          program_id?: string
+          sort_order?: number
+          target_reps?: number | null
+          target_sets?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_exercises_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_exercises_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      programs: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       streak_log: {
         Row: {
           completed: boolean

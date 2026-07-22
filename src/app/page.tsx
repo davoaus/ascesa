@@ -26,6 +26,21 @@ export default async function Home() {
     .order("performed_at", { ascending: false })
     .limit(3);
 
+  const { data: attrs } = await supabase
+    .from("user_attributes")
+    .select("forca, resistencia, disciplina, mobilidade, saude, velocidade")
+    .eq("user_id", user!.id)
+    .single();
+
+  const attributeList: { label: string; value: number }[] = [
+    { label: "Força", value: attrs?.forca ?? 0 },
+    { label: "Resistência", value: attrs?.resistencia ?? 0 },
+    { label: "Disciplina", value: attrs?.disciplina ?? 0 },
+    { label: "Mobilidade", value: attrs?.mobilidade ?? 0 },
+    { label: "Saúde", value: attrs?.saude ?? 0 },
+    { label: "Velocidade", value: attrs?.velocidade ?? 0 },
+  ];
+
   const xpTotal = profile?.xp_total ?? 0;
   const streak = profile?.current_streak ?? 0;
   const progress = levelProgress(xpTotal);
@@ -100,6 +115,23 @@ export default async function Home() {
       >
         Começar treino
       </Link>
+
+      {/* Atributos do personagem */}
+      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
+          Atributos
+        </p>
+        <div className="grid grid-cols-3 gap-3">
+          {attributeList.map((a) => (
+            <div key={a.label} className="text-center">
+              <p className="text-2xl font-black tabular-nums text-aco">
+                {a.value}
+              </p>
+              <p className="text-xs text-muted">{a.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {recent && recent.length > 0 && (
         <section className="rounded-2xl border border-line bg-carvao-2 p-4">
