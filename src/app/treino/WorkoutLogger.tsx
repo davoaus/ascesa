@@ -23,15 +23,25 @@ export interface ProgramDay {
   routine: RoutineItem[];
 }
 
+export interface ExerciseMeta {
+  level: number;
+  bestVolumeKg: number;
+  lastSets: { weight: number; reps: number }[];
+}
+
 const inputClass =
   "w-full rounded-lg border border-line bg-carvao px-3 py-2.5 text-center text-marfim tabular-nums focus:border-brasa focus:outline-none";
+
+const fmt = (n: number) => n.toLocaleString("pt-BR");
 
 export default function WorkoutLogger({
   exercises,
   days = [],
+  exerciseMeta = {},
 }: {
   exercises: ExerciseOption[];
   days?: ProgramDay[];
+  exerciseMeta?: Record<string, ExerciseMeta>;
 }) {
   const [dayIndex, setDayIndex] = useState(0);
   const activeDay = days[dayIndex] ?? null;
@@ -55,6 +65,8 @@ export default function WorkoutLogger({
     () => new Map(exercises.map((e) => [e.id, e.name])),
     [exercises],
   );
+
+  const meta = exerciseMeta[exerciseId];
 
   const volume = sets
     .filter((s) => !s.isWarmup)
@@ -171,6 +183,28 @@ export default function WorkoutLogger({
             </option>
           ))}
         </select>
+
+        {/* nível + última vez — o duelo com a versão de ontem */}
+        {meta && (meta.lastSets.length > 0 || meta.level > 1) && (
+          <div className="mt-3 rounded-lg border border-line bg-carvao px-3 py-2 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-aco">Nível {meta.level}</span>
+              {meta.bestVolumeKg > 0 && (
+                <span className="text-muted">recorde {fmt(meta.bestVolumeKg)} kg</span>
+              )}
+            </div>
+            {meta.lastSets.length > 0 && (
+              <p className="mt-1 text-muted">
+                Última vez:{" "}
+                <span className="tabular-nums text-marfim">
+                  {meta.lastSets
+                    .map((s) => `${fmt(s.weight)}×${s.reps}`)
+                    .join(" · ")}
+                </span>
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="mt-3 grid grid-cols-[1fr_1fr_auto] items-center gap-2">
           <label className="flex flex-col gap-1">

@@ -22,6 +22,69 @@ export default async function TreinoPage() {
 
   const exerciseById = new Map((exercises ?? []).map((e) => [e.id, e]));
 
+  // "Última vez" + nível por exercício — a progressão inteligente (o duelo com
+  // a versão de ontem). Carrega o desempenho da sessão mais recente de cada
+  // exercício e o nível/recorde já acumulados.
+  const { data: progress } = await supabase
+    .from("exercise_progress")
+    .select("exercise_id, exercise_level, best_volume_kg");
+
+  const { data: recentWorkouts } = await supabase
+    .from("workouts")
+    .select("id, performed_at")
+    .order("performed_at", { ascending: false })
+    .limit(50);
+  const perfById = new Map((recentWorkouts ?? []).map((w) => [w.id, w.performed_at]));
+  const workoutIds = (recentWorkouts ?? []).map((w) => w.id);
+
+  const { data: recentSets } = workoutIds.length
+    ? await supabase
+        .from("workout_sets")
+        .select("workout_id, exercise_id, weight_kg, reps, is_warmup")
+        .in("workout_id", workoutIds)
+    : { data: [] };
+
+  // Para cada exercício, junta as séries do treino mais recente em que apareceu.
+  const byExerciseWorkout = new Map<string, Map<string, { weight: number; reps: number }[]>>();
+  for (const s of recentSets ?? []) {
+    if (s.is_warmup) continue;
+    if (!byExerciseWorkout.has(s.exercise_id)) byExerciseWorkout.set(s.exercise_id, new Map());
+    const perWorkout = byExerciseWorkout.get(s.exercise_id)!;
+    if (!perWorkout.has(s.workout_id)) perWorkout.set(s.workout_id, []);
+    perWorkout.get(s.workout_id)!.push({ weight: Number(s.weight_kg), reps: s.reps });
+  }
+
+  const progressById = new Map((progress ?? []).map((p) => [p.exercise_id, p]));
+
+  const exerciseMeta: Record<
+    string,
+    { level: number; bestVolumeKg: number; lastSets: { weight: number; reps: number }[] }
+  > = {};
+  for (const ex of exercises ?? []) {
+    const p = progressById.get(ex.id);
+    let lastSets: { weight: number; reps: number }[] = [];
+    const perWorkout = byExerciseWorkout.get(ex.id);
+    if (perWorkout) {
+      let latestId: string | null = null;
+      let latestPerf = "";
+      for (const wid of perWorkout.keys()) {
+        const perf = perfById.get(wid) ?? "";
+        if (perf > latestPerf) {
+          latestPerf = perf;
+          latestId = wid;
+        }
+      }
+      if (latestId) lastSets = perWorkout.get(latestId)!;
+    }
+    if (p || lastSets.length) {
+      exerciseMeta[ex.id] = {
+        level: p?.exercise_level ?? 1,
+        bestVolumeKg: Number(p?.best_volume_kg ?? 0),
+        lastSets,
+      };
+    }
+  }
+
   const days = (programs ?? []).map((p) => ({
     id: p.id,
     name: p.name,
@@ -54,7 +117,11 @@ export default async function TreinoPage() {
         Um duelo com a versão de ontem.
       </p>
 
-      <WorkoutLogger exercises={exercises ?? []} days={days} />
+      <WorkoutLogger
+        exercises={exercises ?? []}
+        days={days}
+        exerciseMeta={exerciseMeta}
+      />
     </main>
   );
 }
