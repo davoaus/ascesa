@@ -9,40 +9,37 @@ export default async function TreinoPage() {
     .select("id, name, primary_muscle")
     .order("name");
 
-  // Programa do usuário (o seu, se existir; senão o padrão). É a rotina que
-  // aparece pré-carregada — o "os dados que eu anoto" do treino.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Programas do usuário — a rotina (split de dias) que aparece pré-carregada.
   const { data: programs } = await supabase
     .from("programs")
-    .select("id, name, is_default, user_id")
-    .order("is_default"); // false (do usuário) antes de true (padrão)
-  const program = programs?.[0] ?? null;
+    .select("id, name, sort_order")
+    .order("sort_order");
 
-  const { data: programExercises } = program
-    ? await supabase
-        .from("program_exercises")
-        .select("exercise_id, target_sets, target_reps, sort_order")
-        .eq("program_id", program.id)
-        .order("sort_order")
-    : { data: null };
+  const { data: allProgramExercises } = await supabase
+    .from("program_exercises")
+    .select("program_id, exercise_id, target_sets, target_reps, sort_order")
+    .order("sort_order");
 
-  const routine = (programExercises ?? [])
-    .map((pe) => {
-      const ex = exercises?.find((e) => e.id === pe.exercise_id);
-      return ex
-        ? {
-            id: ex.id,
-            name: ex.name,
-            targetSets: pe.target_sets,
-            targetReps: pe.target_reps,
-          }
-        : null;
-    })
-    .filter((r): r is NonNullable<typeof r> => r !== null);
+  const exerciseById = new Map((exercises ?? []).map((e) => [e.id, e]));
 
-  void user;
+  const days = (programs ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    routine: (allProgramExercises ?? [])
+      .filter((pe) => pe.program_id === p.id)
+      .map((pe) => {
+        const ex = exerciseById.get(pe.exercise_id);
+        return ex
+          ? {
+              id: ex.id,
+              name: ex.name,
+              targetSets: pe.target_sets,
+              targetReps: pe.target_reps,
+            }
+          : null;
+      })
+      .filter((r): r is NonNullable<typeof r> => r !== null),
+  }));
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-5 py-8">
@@ -57,11 +54,7 @@ export default async function TreinoPage() {
         Um duelo com a versão de ontem.
       </p>
 
-      <WorkoutLogger
-        exercises={exercises ?? []}
-        routine={routine}
-        programName={program?.name ?? null}
-      />
+      <WorkoutLogger exercises={exercises ?? []} days={days} />
     </main>
   );
 }

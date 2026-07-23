@@ -17,20 +17,27 @@ export interface RoutineItem {
   targetReps: number | null;
 }
 
+export interface ProgramDay {
+  id: string;
+  name: string;
+  routine: RoutineItem[];
+}
+
 const inputClass =
   "w-full rounded-lg border border-line bg-carvao px-3 py-2.5 text-center text-marfim tabular-nums focus:border-brasa focus:outline-none";
 
 export default function WorkoutLogger({
   exercises,
-  routine = [],
-  programName = null,
+  days = [],
 }: {
   exercises: ExerciseOption[];
-  routine?: RoutineItem[];
-  programName?: string | null;
+  days?: ProgramDay[];
 }) {
+  const [dayIndex, setDayIndex] = useState(0);
+  const activeDay = days[dayIndex] ?? null;
+  const routine = activeDay?.routine ?? [];
   const [exerciseId, setExerciseId] = useState(
-    routine[0]?.id ?? exercises[0]?.id ?? "",
+    days[0]?.routine[0]?.id ?? exercises[0]?.id ?? "",
   );
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
@@ -89,13 +96,39 @@ export default function WorkoutLogger({
     if (item.targetReps) setReps(String(item.targetReps));
   }
 
+  function pickDay(index: number) {
+    setDayIndex(index);
+    const first = days[index]?.routine[0];
+    if (first) setExerciseId(first.id);
+  }
+
   return (
     <div className="flex flex-col gap-4">
+      {/* seletor de dia do split */}
+      {days.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {days.map((d, i) => (
+            <button
+              key={d.id}
+              type="button"
+              onClick={() => pickDay(i)}
+              className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors ${
+                i === dayIndex
+                  ? "border-brasa bg-brasa/15 text-brasa"
+                  : "border-line bg-carvao-2 text-muted hover:text-marfim"
+              }`}
+            >
+              {d.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* programa do dia — a rotina pré-carregada */}
       {routine.length > 0 && (
         <section className="rounded-2xl border border-line bg-carvao-2 p-4">
           <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">
-            {programName ?? "Meu programa"}
+            {activeDay?.name ?? "Meu programa"}
           </p>
           <div className="flex flex-wrap gap-2">
             {routine.map((item) => {
