@@ -35,7 +35,7 @@ export default async function PerfilPage() {
 
   const { data: workouts } = await supabase
     .from("workouts")
-    .select("total_volume_kg");
+    .select("total_volume_kg, performed_at");
   const { count: prCount } = await supabase
     .from("workout_sets")
     .select("id", { count: "exact", head: true })
@@ -53,6 +53,49 @@ export default async function PerfilPage() {
     (s, w) => s + Number(w.total_volume_kg),
     0,
   );
+
+  // Volume por semana (segunda a domingo), últimas 8 semanas.
+  function mondayKey(iso: string): string {
+    const d = new Date(iso);
+    const u = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    u.setUTCDate(u.getUTCDate() - ((u.getUTCDay() + 6) % 7));
+    return u.toISOString().slice(0, 10);
+  }
+  const volByWeek = new Map<string, number>();
+  for (const w of workouts ?? []) {
+    const k = mondayKey(w.performed_at);
+    volByWeek.set(k, (volByWeek.get(k) ?? 0) + Number(w.total_volume_kg));
+  }
+  const baseMon = new Date(mondayKey(new Date().toISOString()) + "T00:00:00Z");
+  const weeks = Array.from({ length: 8 }, (_, idx) => {
+    const i = 7 - idx;
+    const d = new Date(baseMon);
+    d.setUTCDate(d.getUTCDate() - i * 7);
+    const key = d.toISOString().slice(0, 10);
+    return {
+      key,
+      label: `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}`,
+      volume: volByWeek.get(key) ?? 0,
+    };
+  });
+  const maxVol = Math.max(1, ...weeks.map((w) => w.volume));
+  const maxIdx = weeks.reduce((best, w, i) => (w.volume > weeks[best].volume ? i : best), 0);
+  const thisWeek = weeks[weeks.length - 1].volume;
+  const lastWeek = weeks[weeks.length - 2].volume;
+  const weekDelta = lastWeek > 0 ? Math.round(((thisWeek - lastWeek) / lastWeek) * 100) : null;
+
+  // geometria do gráfico
+  const CW = 328, CH = 118, padB = 20, padT = 10;
+  const chartH = CH - padB - padT;
+  const band = CW / weeks.length;
+  const colW = Math.min(22, band - 6);
+  const col = (v: number) => (v / maxVol) * chartH;
+  function colPath(x: number, h: number): string {
+    const r = Math.min(4, h / 2);
+    const yTop = padT + (chartH - h);
+    const yBase = padT + chartH;
+    return `M${x},${yBase} L${x},${yTop + r} Q${x},${yTop} ${x + r},${yTop} L${x + colW - r},${yTop} Q${x + colW},${yTop} ${x + colW},${yTop + r} L${x + colW},${yBase} Z`;
+  }
 
   const attributeList = [
     { label: "Força", value: attrs?.forca ?? 0 },
@@ -114,6 +157,88 @@ export default async function PerfilPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* evolução — volume por semana */}
+      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+        <div className="flex items-baseline justify-between">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted">
+            Volume por semana
+          </p>
+          {weekDelta !== null && (
+            <span
+              className={`text-xs font-bold ${weekDelta >= 0 ? "text-ok" : "text-brasa-deep"}`}
+            >
+              {weekDelta >= 0 ? "↑" : "↓"} {Math.abs(weekDelta)}% vs semana passada
+            </span>
+          )}
+        </div>
+        <p className="mt-1 text-2xl font-black tabular-nums text-marfim">
+          {fmt(Math.round(thisWeek))} kg{" "}
+          <span className="text-sm font-normal text-muted">esta semana</span>
+        </p>
+
+        <svg
+          viewBox={`0 0 ${CW} ${CH}`}
+          className="mt-2 w-full"
+          role="img"
+          aria-label="Volume de treino por semana nas últimas 8 semanas"
+        >
+          <defs>
+            <linearGradient id="colGrad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stopColor="#e4572e" />
+              <stop offset="1" stopColor="#f59a2d" />
+            </linearGradient>
+          </defs>
+          {/* baseline recessiva */}
+          <line
+            x1="0"
+            y1={padT + chartH}
+            x2={CW}
+            y2={padT + chartH}
+            stroke="#362c1d"
+            strokeWidth="1"
+          />
+          {weeks.map((w, i) => {
+            const h = col(w.volume);
+            const x = i * band + (band - colW) / 2;
+            const isLast = i === weeks.length - 1;
+            return (
+              <g key={w.key}>
+                {h > 0 && (
+                  <path
+                    d={colPath(x, h)}
+                    fill="url(#colGrad)"
+                    fillOpacity={isLast ? 1 : 0.55}
+                  />
+                )}
+                {(i === 0 || isLast) && (
+                  <text
+                    x={x + colW / 2}
+                    y={CH - 6}
+                    textAnchor="middle"
+                    fontSize="9"
+                    fill="#9d9077"
+                  >
+                    {w.label}
+                  </text>
+                )}
+                {i === maxIdx && w.volume > 0 && (
+                  <text
+                    x={x + colW / 2}
+                    y={padT + (chartH - h) - 4}
+                    textAnchor="middle"
+                    fontSize="9"
+                    fontWeight="700"
+                    fill="#f0e7d4"
+                  >
+                    {fmt(Math.round(w.volume))}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
       </section>
 
       {/* atributos */}
