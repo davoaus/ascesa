@@ -11,7 +11,7 @@ const archivo = Archivo({
 export const metadata: Metadata = {
   title: "ASCESA — suba de nível na vida real",
   description:
-    "O RPG onde sua evolução física real é o progresso. O boss final é você.",
+    "O RPG onde sua evolução física real é o progresso. O seu maior adversário é você mesmo.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

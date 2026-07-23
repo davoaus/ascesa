@@ -18,7 +18,7 @@ export default async function PerfilPage() {
     await Promise.all([
       supabase
         .from("profiles")
-        .select("display_name, bodyweight_kg, xp_total, current_streak, longest_streak")
+        .select("display_name, bodyweight_kg, goal, xp_total, current_streak, longest_streak")
         .eq("id", user!.id)
         .single(),
       supabase
@@ -121,7 +121,12 @@ export default async function PerfilPage() {
         <Link href="/" className="text-sm text-muted hover:text-marfim">
           ← Voltar
         </Link>
-        <p className="text-xs font-black tracking-[0.3em] text-muted">PERFIL</p>
+        <Link
+          href="/perfil/config"
+          className="text-sm text-muted hover:text-marfim"
+        >
+          ⚙ Configurações
+        </Link>
       </header>
 
       {/* resumo do personagem */}
@@ -132,6 +137,7 @@ export default async function PerfilPage() {
         <p className="mt-1 text-sm text-muted">
           Nível {prog.level} · Mundo {world.id} · {world.name}
           {profile?.bodyweight_kg ? ` · ${fmt(Number(profile.bodyweight_kg))} kg` : ""}
+          {profile?.goal ? ` · ${profile.goal}` : ""}
         </p>
         <div className="mt-3 flex items-center gap-4 text-sm">
           <span className="font-black text-brasa">🔥 {streak} dias</span>
@@ -140,6 +146,13 @@ export default async function PerfilPage() {
             {minStreakForLevel(prog.level + 1)}
           </span>
         </div>
+        <Link
+          href="/perfil/plano"
+          className="mt-4 flex items-center justify-between rounded-lg border border-line bg-carvao px-3 py-2.5 text-sm text-marfim hover:border-brasa"
+        >
+          <span>📋 Meu plano · treino, corrida e alimentação</span>
+          <span className="text-muted">›</span>
+        </Link>
       </section>
 
       {/* estatísticas */}

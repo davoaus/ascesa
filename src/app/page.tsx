@@ -188,7 +188,7 @@ export default async function Home() {
       )}
 
       <p className="mt-auto pt-4 text-center text-xs text-muted">
-        O boss final é você.
+        O seu maior adversário é você mesmo.
       </p>
     </main>
   );

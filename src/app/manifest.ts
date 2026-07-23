@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "ASCESA — suba de nível na vida real",
     short_name: "ASCESA",
     description:
-      "O RPG onde sua evolução física real é o progresso. O boss final é você.",
+      "O RPG onde sua evolução física real é o progresso. O seu maior adversário é você mesmo.",
     start_url: "/",
     display: "standalone",
     background_color: "#131009",

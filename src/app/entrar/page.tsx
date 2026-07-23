@@ -15,7 +15,7 @@ export default function EntrarPage() {
       <header className="text-center">
         <p className="text-sm font-black tracking-[0.42em] text-marfim">ASCESA</p>
         <p className="mt-3 text-3xl font-black leading-tight text-marfim">
-          O boss final <span className="text-brasa">é você</span>.
+          O seu maior adversário <span className="text-brasa">é você mesmo</span>.
         </p>
         <p className="mt-2 text-sm text-muted">
           Suba de nível na vida real. Cada treino é um duelo com a versão de ontem.

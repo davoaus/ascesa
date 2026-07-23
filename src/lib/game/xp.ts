@@ -113,7 +113,7 @@ export interface XpLine {
 
 /**
  * Decompõe o XP de um treino em linhas — é exatamente isto que a tela de
- * resumo pós-treino ("o boss final é você") mostra ao usuário.
+ * resumo pós-treino mostra ao usuário — o seu maior adversário é você mesmo.
  */
 export function computeWorkoutXp(input: WorkoutXpInput): {
   lines: XpLine[];

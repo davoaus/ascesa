@@ -130,10 +130,12 @@ export type Database = {
           created_at: string
           current_streak: number
           display_name: string | null
+          goal: string | null
           height_cm: number | null
           id: string
           last_completed_date: string | null
           longest_streak: number
+          sleep_time: string | null
           xp_total: number
         }
         Insert: {
@@ -141,10 +143,12 @@ export type Database = {
           created_at?: string
           current_streak?: number
           display_name?: string | null
+          goal?: string | null
           height_cm?: number | null
           id: string
           last_completed_date?: string | null
           longest_streak?: number
+          sleep_time?: string | null
           xp_total?: number
         }
         Update: {
@@ -152,10 +156,12 @@ export type Database = {
           created_at?: string
           current_streak?: number
           display_name?: string | null
+          goal?: string | null
           height_cm?: number | null
           id?: string
           last_completed_date?: string | null
           longest_streak?: number
+          sleep_time?: string | null
           xp_total?: number
         }
         Relationships: []
