@@ -62,6 +62,13 @@ export default function WorkoutLogger({
 
   const meta = exerciseMeta[exerciseId];
 
+  // Checklist do dia: um exercício está "feito" quando tem ao menos uma série
+  // registrada (fora aquecimento) nesta sessão.
+  const doneIds = new Set(
+    sets.filter((s) => !s.isWarmup).map((s) => s.exerciseId),
+  );
+  const doneCount = routine.filter((r) => doneIds.has(r.id)).length;
+
   const volume = sets
     .filter((s) => !s.isWarmup)
     .reduce((sum, s) => sum + s.weightKg * s.reps, 0);
@@ -126,36 +133,65 @@ export default function WorkoutLogger({
         </div>
       )}
 
-      {/* programa do dia — a rotina pré-carregada */}
+      {/* checklist do dia — marca ✓ conforme você registra cada exercício */}
       {routine.length > 0 && (
         <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">
-            {activeDay?.name ?? "Meu programa"}
-          </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="mb-2 flex items-baseline justify-between">
+            <p className="text-xs font-bold uppercase tracking-widest text-muted">
+              {activeDay?.name ?? "Meu programa"}
+            </p>
+            <p className="text-xs font-bold tabular-nums text-brasa">
+              feitos {doneCount}/{routine.length}
+            </p>
+          </div>
+          <ul className="flex flex-col gap-1.5">
             {routine.map((item) => {
               const active = item.id === exerciseId;
+              const done = doneIds.has(item.id);
               return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => pickRoutine(item)}
-                  className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
-                    active
-                      ? "border-brasa bg-brasa/10 text-brasa"
-                      : "border-line bg-carvao text-muted hover:text-marfim"
-                  }`}
-                >
-                  {item.name}
-                  {item.targetSets && item.targetReps ? (
-                    <span className="ml-1 text-xs opacity-70">
-                      {item.targetSets}×{item.targetReps}
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => pickRoutine(item)}
+                    className={`flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-sm transition-colors ${
+                      active
+                        ? "border-brasa bg-brasa/10"
+                        : "border-line bg-carvao hover:border-muted"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <span
+                        className={`flex h-5 w-5 items-center justify-center rounded-full border text-xs ${
+                          done
+                            ? "border-ok bg-ok/20 text-ok"
+                            : "border-muted text-transparent"
+                        }`}
+                        aria-hidden
+                      >
+                        ✓
+                      </span>
+                      <span
+                        className={
+                          done
+                            ? "text-muted line-through"
+                            : active
+                              ? "text-brasa"
+                              : "text-marfim"
+                        }
+                      >
+                        {item.name}
+                      </span>
                     </span>
-                  ) : null}
-                </button>
+                    {item.targetSets && item.targetReps ? (
+                      <span className="tabular-nums text-xs text-muted">
+                        {item.targetSets}×{item.targetReps}
+                      </span>
+                    ) : null}
+                  </button>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </section>
       )}
 
