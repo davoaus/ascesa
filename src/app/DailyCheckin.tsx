@@ -3,14 +3,26 @@
 import { useState, useTransition } from "react";
 import { saveDailyCheckin, type DailyGoals } from "./actions/daily";
 
-const GOALS = [
-  ["proteinHit", "Proteína"],
-  ["waterHit", "Hidratação"],
-  ["sleepHit", "Sono"],
-  ["mobilityHit", "Mobilidade"],
-] as const;
+const GOAL_LABELS = {
+  proteinHit: "Proteína",
+  waterHit: "Hidratação",
+  sleepHit: "Sono",
+  mobilityHit: "Mobilidade",
+} as const;
 
-export default function DailyCheckin({ initial }: { initial: DailyGoals }) {
+type GoalKey = keyof typeof GOAL_LABELS;
+
+export default function DailyCheckin({
+  initial,
+  visible = ["proteinHit", "waterHit", "sleepHit", "mobilityHit"],
+  showRest = true,
+  title = "Metas de hoje",
+}: {
+  initial: DailyGoals;
+  visible?: GoalKey[];
+  showRest?: boolean;
+  title?: string;
+}) {
   const [goals, setGoals] = useState<DailyGoals>(initial);
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -27,20 +39,18 @@ export default function DailyCheckin({ initial }: { initial: DailyGoals }) {
     });
   }
 
+  // "sujo" só considera os campos visíveis + descanso (se mostrado).
   const dirty =
-    goals.proteinHit !== initial.proteinHit ||
-    goals.waterHit !== initial.waterHit ||
-    goals.sleepHit !== initial.sleepHit ||
-    goals.mobilityHit !== initial.mobilityHit ||
-    goals.isRestDay !== initial.isRestDay;
+    visible.some((k) => goals[k] !== initial[k]) ||
+    (showRest && goals.isRestDay !== initial.isRestDay);
 
   return (
     <section className="rounded-2xl border border-line bg-carvao-2 p-4">
       <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
-        Metas de hoje
+        {title}
       </p>
       <div className="grid grid-cols-2 gap-2">
-        {GOALS.map(([key, label]) => (
+        {visible.map((key) => (
           <button
             key={key}
             type="button"
@@ -52,23 +62,25 @@ export default function DailyCheckin({ initial }: { initial: DailyGoals }) {
             }`}
           >
             {goals[key] ? "✓ " : ""}
-            {label}
+            {GOAL_LABELS[key]}
           </button>
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={() => toggle("isRestDay")}
-        className={`mt-2 w-full rounded-lg border px-3 py-2.5 text-sm transition-colors ${
-          goals.isRestDay
-            ? "border-aco bg-aco/10 text-aco"
-            : "border-line bg-carvao text-muted"
-        }`}
-      >
-        {goals.isRestDay ? "✓ " : ""}
-        Dia de descanso (protege a ofensiva)
-      </button>
+      {showRest && (
+        <button
+          type="button"
+          onClick={() => toggle("isRestDay")}
+          className={`mt-2 w-full rounded-lg border px-3 py-2.5 text-sm transition-colors ${
+            goals.isRestDay
+              ? "border-aco bg-aco/10 text-aco"
+              : "border-line bg-carvao text-muted"
+          }`}
+        >
+          {goals.isRestDay ? "✓ " : ""}
+          Dia de descanso (protege a ofensiva)
+        </button>
+      )}
 
       {dirty ? (
         <button

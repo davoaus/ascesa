@@ -107,7 +107,7 @@ export default async function TreinoPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-5 py-8">
       <header className="flex items-center justify-between">
-        <Link href="/" className="text-sm text-muted hover:text-marfim">
+        <Link href="/musculacao" className="text-sm text-muted hover:text-marfim">
           ← Voltar
         </Link>
         <p className="text-xs font-black tracking-[0.3em] text-muted">TREINO</p>
