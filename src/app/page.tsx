@@ -1,12 +1,19 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "./entrar/actions";
+import DailyCheckin from "./DailyCheckin";
 import {
   levelProgress,
   worldForLevel,
   minStreakForLevel,
   nextBoss,
 } from "@/lib/game/xp";
+
+function todayLocal(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+  }).format(new Date());
+}
 
 export default async function Home() {
   const supabase = await createClient();
@@ -31,6 +38,21 @@ export default async function Home() {
     .select("forca, resistencia, disciplina, mobilidade, saude, velocidade")
     .eq("user_id", user!.id)
     .single();
+
+  const { data: checkin } = await supabase
+    .from("daily_checkins")
+    .select("protein_hit, water_hit, sleep_hit, mobility_hit, is_rest_day")
+    .eq("user_id", user!.id)
+    .eq("checkin_date", todayLocal())
+    .maybeSingle();
+
+  const checkinInitial = {
+    proteinHit: checkin?.protein_hit ?? false,
+    waterHit: checkin?.water_hit ?? false,
+    sleepHit: checkin?.sleep_hit ?? false,
+    mobilityHit: checkin?.mobility_hit ?? false,
+    isRestDay: checkin?.is_rest_day ?? false,
+  };
 
   const attributeList: { label: string; value: number }[] = [
     { label: "Força", value: attrs?.forca ?? 0 },
@@ -115,6 +137,8 @@ export default async function Home() {
       >
         Começar treino
       </Link>
+
+      <DailyCheckin initial={checkinInitial} />
 
       {/* Atributos do personagem */}
       <section className="rounded-2xl border border-line bg-carvao-2 p-4">

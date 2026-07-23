@@ -52,12 +52,6 @@ export default function WorkoutLogger({
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
   const [sets, setSets] = useState<LoggedSet[]>([]);
-  const [lifestyle, setLifestyle] = useState({
-    proteinHit: false,
-    waterHit: false,
-    sleepHit: false,
-    mobilityHit: false,
-  });
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -94,11 +88,7 @@ export default function WorkoutLogger({
   function finish() {
     setError(null);
     startTransition(async () => {
-      const result = await finishWorkout({
-        sets,
-        durationMin: 0,
-        ...lifestyle,
-      });
+      const result = await finishWorkout({ sets, durationMin: 0 });
       if (result?.error) setError(result.error);
     });
   }
@@ -282,39 +272,6 @@ export default function WorkoutLogger({
           </div>
         </section>
       )}
-
-      {/* estilo de vida do dia */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-        <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">
-          Metas do dia
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          {(
-            [
-              ["proteinHit", "Proteína"],
-              ["waterHit", "Hidratação"],
-              ["sleepHit", "Sono"],
-              ["mobilityHit", "Mobilidade"],
-            ] as const
-          ).map(([key, label]) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() =>
-                setLifestyle((p) => ({ ...p, [key]: !p[key] }))
-              }
-              className={`rounded-lg border px-3 py-2.5 text-sm transition-colors ${
-                lifestyle[key]
-                  ? "border-brasa bg-brasa/10 text-brasa"
-                  : "border-line bg-carvao text-muted"
-              }`}
-            >
-              {lifestyle[key] ? "✓ " : ""}
-              {label}
-            </button>
-          ))}
-        </div>
-      </section>
 
       {error && (
         <p className="rounded-lg border border-brasa-deep/50 bg-brasa-deep/10 px-3 py-2 text-sm text-brasa">

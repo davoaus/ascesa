@@ -16,10 +16,6 @@ export interface LoggedSet {
 export interface FinishWorkoutInput {
   sets: LoggedSet[];
   durationMin: number;
-  proteinHit: boolean;
-  waterHit: boolean;
-  sleepHit: boolean;
-  mobilityHit: boolean;
 }
 
 /** Data de hoje no fuso do usuário (streak é sobre o dia dele, não UTC). */
@@ -120,10 +116,6 @@ export async function finishWorkout(input: FinishWorkoutInput) {
     volumeKg,
     hadProgression,
     newPr: prExerciseIds.size > 0,
-    proteinHit: input.proteinHit,
-    waterHit: input.waterHit,
-    sleepHit: input.sleepHit,
-    mobilityHit: input.mobilityHit,
   });
 
   await supabase
@@ -173,13 +165,9 @@ export async function finishWorkout(input: FinishWorkoutInput) {
       { onConflict: "user_id,log_date" },
     );
 
-  // 7. atributos do personagem
-  const gains = attributeGains({
-    volumeKg,
-    streak,
-    sleepHit: input.sleepHit,
-    mobilityHit: input.mobilityHit,
-  });
+  // 7. atributos do personagem (força do volume, disciplina da ofensiva;
+  // saúde/mobilidade vêm do check-in diário)
+  const gains = attributeGains({ volumeKg, streak });
   const { data: attrs } = await supabase
     .from("user_attributes")
     .select("forca, resistencia, disciplina, mobilidade, saude, velocidade")
