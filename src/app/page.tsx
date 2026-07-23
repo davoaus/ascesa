@@ -74,12 +74,12 @@ export default async function Home() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-5 py-8">
       <header className="flex items-center justify-between">
-        <div>
+        <Link href="/perfil" className="group">
           <p className="text-xs font-black tracking-[0.42em] text-muted">ASCESA</p>
-          <p className="text-sm text-muted">
-            Olá, {profile?.display_name ?? "Atleta"}
+          <p className="text-sm text-muted group-hover:text-marfim">
+            Olá, {profile?.display_name ?? "Atleta"} →
           </p>
-        </div>
+        </Link>
         <form action={signOut}>
           <button className="text-xs text-muted hover:text-marfim">Sair</button>
         </form>
