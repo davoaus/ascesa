@@ -8,6 +8,7 @@ import {
   rankForLevel,
   levelForXp,
 } from "@/lib/areas";
+import { loadMissions } from "./missoes/data";
 
 const fmt = (n: number) => n.toLocaleString("pt-BR");
 
@@ -17,13 +18,14 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: profile }, { data: events }] = await Promise.all([
+  const [{ data: profile }, { data: events }, missions] = await Promise.all([
     supabase
       .from("profiles")
       .select("display_name, xp_total, current_streak")
       .eq("id", user!.id)
       .single(),
     supabase.from("xp_events").select("source, amount"),
+    loadMissions(supabase, user!.id),
   ]);
 
   const xpBySource = sumXpBySource(events ?? []);
@@ -74,6 +76,22 @@ export default async function Home() {
             : " · patente máxima"}
         </p>
       </section>
+
+      {/* Missões de hoje */}
+      <Link
+        href="/missoes"
+        className="flex items-center justify-between rounded-2xl border border-line bg-carvao-2 px-4 py-3.5 hover:border-brasa"
+      >
+        <span className="flex items-center gap-2 text-sm font-bold text-marfim">
+          🎯 Missões de hoje
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="text-xs font-black tabular-nums text-brasa">
+            {missions.dailyDone}/{missions.dailyTotal}
+          </span>
+          <span className="text-muted">›</span>
+        </span>
+      </Link>
 
       {/* Seletor de áreas (estilo Netflix) */}
       <div>
