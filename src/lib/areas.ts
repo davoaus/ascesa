@@ -50,9 +50,9 @@ export const AREAS: Area[] = [
     name: "Hábitos",
     icon: "🔥",
     accent: "#efc75e",
-    tagline: "Água, sono & mobilidade",
+    tagline: "Constância & rotina",
     route: "/habitos",
-    sources: ["Hidratação", "Meta de sono", "Mobilidade", "Missão semanal"],
+    sources: ["Hábito", "Hidratação", "Meta de sono", "Mobilidade", "Missão semanal"],
   },
   {
     slug: "leitura",

@@ -17,7 +17,7 @@ export const MISSIONS: Mission[] = [
   // diárias
   { id: "treino-hoje", title: "Treinar hoje", areaSlug: "musculacao", period: "daily", target: 1, metric: "workoutToday" },
   { id: "proteina-hoje", title: "Bater a proteína", areaSlug: "alimentacao", period: "daily", target: 1, metric: "proteinToday" },
-  { id: "agua-hoje", title: "Beber água", areaSlug: "habitos", period: "daily", target: 1, metric: "waterToday" },
+  { id: "habito-hoje", title: "Marcar um hábito", areaSlug: "habitos", period: "daily", target: 1, metric: "habitToday" },
   { id: "ler-hoje", title: "Ler um pouco", areaSlug: "leitura", period: "daily", target: 1, metric: "readToday" },
   // semanais
   { id: "treino-5", title: "Treinar 5× na semana", areaSlug: "musculacao", period: "weekly", target: 5, metric: "workoutsWeek" },

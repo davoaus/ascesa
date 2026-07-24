@@ -30,7 +30,7 @@ export async function loadMissions(
   const today = spDate(new Date());
   const weekStart = mondayOf(today);
 
-  const [{ data: workouts }, { data: checkins }, { data: events }] =
+  const [{ data: workouts }, { data: checkins }, { data: events }, { data: habitLogs }] =
     await Promise.all([
       supabase
         .from("workouts")
@@ -39,7 +39,7 @@ export async function loadMissions(
         .limit(60),
       supabase
         .from("daily_checkins")
-        .select("checkin_date, protein_hit, water_hit, sleep_hit, mobility_hit")
+        .select("checkin_date, protein_hit")
         .gte("checkin_date", weekStart),
       supabase
         .from("xp_events")
@@ -47,6 +47,10 @@ export async function loadMissions(
         .in("source", ["Corrida", "Leitura"])
         .order("occurred_at", { ascending: false })
         .limit(200),
+      supabase
+        .from("habit_logs")
+        .select("log_date")
+        .gte("log_date", weekStart),
     ]);
 
   const workoutDates = (workouts ?? []).map((w) => spDate(w.performed_at));
@@ -57,22 +61,19 @@ export async function loadMissions(
     .filter((e) => e.source === "Leitura")
     .map((e) => spDate(e.occurred_at));
   const todayCheckin = (checkins ?? []).find((c) => c.checkin_date === today);
+  const habitDates = (habitLogs ?? []).map((h) => h.log_date);
 
   const inWeek = (d: string) => d >= weekStart;
 
   const metrics: Metrics = {
     workoutToday: workoutDates.includes(today) ? 1 : 0,
     proteinToday: todayCheckin?.protein_hit ? 1 : 0,
-    waterToday: todayCheckin?.water_hit ? 1 : 0,
+    habitToday: habitDates.includes(today) ? 1 : 0,
     readToday: readDates.includes(today) ? 1 : 0,
     workoutsWeek: workoutDates.filter(inWeek).length,
     runsWeek: runDates.filter(inWeek).length,
     readDaysWeek: new Set(readDates.filter(inWeek)).size,
-    habitDaysWeek: (checkins ?? []).filter(
-      (c) =>
-        inWeek(c.checkin_date) &&
-        (c.water_hit || c.sleep_hit || c.mobility_hit || c.protein_hit),
-    ).length,
+    habitDaysWeek: new Set(habitDates.filter(inWeek)).size,
   };
 
   const states = MISSIONS.map((m) => missionState(m, metrics));
