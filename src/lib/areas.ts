@@ -25,7 +25,7 @@ export const AREAS: Area[] = [
     accent: "#f59a2d",
     tagline: "Força & volume",
     route: "/musculacao",
-    sources: ["Treino concluído", "Progressão de carga", "Novo recorde"],
+    sources: ["Treino concluído", "Progressão de carga", "Novo recorde", "bonus:musculacao"],
   },
   {
     slug: "alimentacao",
@@ -34,7 +34,7 @@ export const AREAS: Area[] = [
     accent: "#a4c46b",
     tagline: "Proteína & disciplina",
     route: "/alimentacao",
-    sources: ["Meta de proteína"],
+    sources: ["Meta de proteína", "bonus:alimentacao"],
   },
   {
     slug: "corrida",
@@ -43,7 +43,7 @@ export const AREAS: Area[] = [
     accent: "#8fb6c9",
     tagline: "Resistência & fôlego",
     route: "/corrida",
-    sources: ["Corrida"],
+    sources: ["Corrida", "bonus:corrida"],
   },
   {
     slug: "habitos",
@@ -52,7 +52,7 @@ export const AREAS: Area[] = [
     accent: "#efc75e",
     tagline: "Constância & rotina",
     route: "/habitos",
-    sources: ["Hábito", "Hidratação", "Meta de sono", "Mobilidade", "Missão semanal"],
+    sources: ["Hábito", "Hidratação", "Meta de sono", "Mobilidade", "Missão semanal", "bonus:habitos"],
   },
   {
     slug: "leitura",
@@ -61,7 +61,7 @@ export const AREAS: Area[] = [
     accent: "#b3a4e0",
     tagline: "Mente & foco",
     route: "/leitura",
-    sources: ["Leitura"],
+    sources: ["Leitura", "bonus:leitura"],
   },
 ];
 

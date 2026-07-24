@@ -13,56 +13,27 @@ function mondayOf(dateStr: string): string {
   return u.toISOString().slice(0, 10);
 }
 
-export interface MissionBundle {
-  daily: MissionState[];
-  weekly: MissionState[];
-  dailyDone: number;
-  dailyTotal: number;
-  weeklyDone: number;
-  weeklyTotal: number;
-}
-
-/** Calcula o progresso de todas as missões a partir da atividade real. */
-export async function loadMissions(
+/** Métricas de atividade + chaves de período (diária/semanal). */
+export async function computeContext(
   supabase: SupabaseClient,
   userId: string,
-): Promise<MissionBundle> {
+): Promise<{ metrics: Metrics; dailyKey: string; weeklyKey: string }> {
   const today = spDate(new Date());
   const weekStart = mondayOf(today);
 
   const [{ data: workouts }, { data: checkins }, { data: events }, { data: habitLogs }] =
     await Promise.all([
-      supabase
-        .from("workouts")
-        .select("performed_at")
-        .order("performed_at", { ascending: false })
-        .limit(60),
-      supabase
-        .from("daily_checkins")
-        .select("checkin_date, protein_hit")
-        .gte("checkin_date", weekStart),
-      supabase
-        .from("xp_events")
-        .select("source, occurred_at")
-        .in("source", ["Corrida", "Leitura"])
-        .order("occurred_at", { ascending: false })
-        .limit(200),
-      supabase
-        .from("habit_logs")
-        .select("log_date")
-        .gte("log_date", weekStart),
+      supabase.from("workouts").select("performed_at").order("performed_at", { ascending: false }).limit(60),
+      supabase.from("daily_checkins").select("checkin_date, protein_hit").gte("checkin_date", weekStart),
+      supabase.from("xp_events").select("source, occurred_at").in("source", ["Corrida", "Leitura"]).order("occurred_at", { ascending: false }).limit(200),
+      supabase.from("habit_logs").select("log_date").gte("log_date", weekStart),
     ]);
 
   const workoutDates = (workouts ?? []).map((w) => spDate(w.performed_at));
-  const runDates = (events ?? [])
-    .filter((e) => e.source === "Corrida")
-    .map((e) => spDate(e.occurred_at));
-  const readDates = (events ?? [])
-    .filter((e) => e.source === "Leitura")
-    .map((e) => spDate(e.occurred_at));
+  const runDates = (events ?? []).filter((e) => e.source === "Corrida").map((e) => spDate(e.occurred_at));
+  const readDates = (events ?? []).filter((e) => e.source === "Leitura").map((e) => spDate(e.occurred_at));
   const todayCheckin = (checkins ?? []).find((c) => c.checkin_date === today);
   const habitDates = (habitLogs ?? []).map((h) => h.log_date);
-
   const inWeek = (d: string) => d >= weekStart;
 
   const metrics: Metrics = {
@@ -76,7 +47,36 @@ export async function loadMissions(
     habitDaysWeek: new Set(habitDates.filter(inWeek)).size,
   };
 
-  const states = MISSIONS.map((m) => missionState(m, metrics));
+  return { metrics, dailyKey: today, weeklyKey: weekStart };
+}
+
+export interface MissionBundle {
+  daily: MissionState[];
+  weekly: MissionState[];
+  dailyDone: number;
+  dailyTotal: number;
+  weeklyDone: number;
+  weeklyTotal: number;
+  claimable: number;
+}
+
+export async function loadMissions(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<MissionBundle> {
+  const { metrics, dailyKey, weeklyKey } = await computeContext(supabase, userId);
+
+  const { data: claims } = await supabase
+    .from("mission_claims")
+    .select("mission_id, period_key")
+    .in("period_key", [dailyKey, weeklyKey]);
+  const claimedKeys = new Set(
+    (claims ?? []).map((c) => `${c.mission_id}:${c.period_key}`),
+  );
+
+  const states = MISSIONS.map((m) =>
+    missionState(m, metrics, claimedKeys, dailyKey, weeklyKey),
+  );
   const daily = states.filter((m) => m.period === "daily");
   const weekly = states.filter((m) => m.period === "weekly");
 
@@ -87,5 +87,6 @@ export async function loadMissions(
     dailyTotal: daily.length,
     weeklyDone: weekly.filter((m) => m.done).length,
     weeklyTotal: weekly.length,
+    claimable: states.filter((m) => m.done && !m.claimed).length,
   };
 }

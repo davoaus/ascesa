@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { loadMissions } from "./data";
 import type { MissionState } from "@/lib/missions";
+import ClaimButton from "./ClaimButton";
 
 function MissionList({ missions }: { missions: MissionState[] }) {
   return (
@@ -11,7 +12,7 @@ function MissionList({ missions }: { missions: MissionState[] }) {
           key={m.id}
           className="rounded-lg border border-line bg-carvao px-3 py-2.5"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-2.5">
               <span
                 className={`flex h-5 w-5 items-center justify-center rounded-full border text-xs ${
@@ -32,9 +33,15 @@ function MissionList({ missions }: { missions: MissionState[] }) {
                 {m.title}
               </span>
             </span>
-            <span className="text-xs tabular-nums text-muted">
-              {m.value}/{m.target}
-            </span>
+            {m.done && m.claimed ? (
+              <span className="text-xs font-bold text-ok">+{m.reward} XP ✓</span>
+            ) : m.done ? (
+              <ClaimButton missionId={m.id} reward={m.reward} />
+            ) : (
+              <span className="text-xs tabular-nums text-muted">
+                {m.value}/{m.target} · +{m.reward}
+              </span>
+            )}
           </div>
           {m.target > 1 && (
             <span className="mt-1.5 block h-1.5 overflow-hidden rounded-full bg-carvao-3">

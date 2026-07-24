@@ -186,6 +186,30 @@ export type Database = {
         }
         Relationships: []
       }
+      mission_claims: {
+        Row: {
+          claimed_at: string
+          id: string
+          mission_id: string
+          period_key: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          mission_id: string
+          period_key: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          mission_id?: string
+          period_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           bodyweight_kg: number | null
