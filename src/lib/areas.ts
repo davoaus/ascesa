@@ -63,6 +63,24 @@ export const AREAS: Area[] = [
     route: "/leitura",
     sources: ["Leitura", "bonus:leitura"],
   },
+  {
+    slug: "sono",
+    name: "Sono",
+    icon: "😴",
+    accent: "#7d8fd1",
+    tagline: "Descanso & recuperação",
+    route: "/sono",
+    sources: ["Sono", "bonus:sono"],
+  },
+  {
+    slug: "financas",
+    name: "Finanças",
+    icon: "💰",
+    accent: "#4fb286",
+    tagline: "Controle & reserva",
+    route: "/financas",
+    sources: ["Finanças", "bonus:financas"],
+  },
 ];
 
 export function areaBySlug(slug: string): Area | undefined {
