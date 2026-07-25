@@ -24,14 +24,19 @@ export async function saveProfile(
   } = await supabase.auth.getUser();
   if (!user) redirect("/entrar");
 
+  const str = (k: string) => String(formData.get(k) ?? "").trim() || null;
   const { error } = await supabase
     .from("profiles")
     .update({
       display_name: String(formData.get("display_name") ?? "").trim() || "Atleta",
       bodyweight_kg: num(formData.get("bodyweight_kg")),
       height_cm: num(formData.get("height_cm")),
-      goal: String(formData.get("goal") ?? "").trim() || null,
-      sleep_time: String(formData.get("sleep_time") ?? "").trim() || null,
+      goal: str("goal"),
+      sleep_time: str("sleep_time"),
+      nutrition_kcal: str("nutrition_kcal"),
+      nutrition_protein: str("nutrition_protein"),
+      nutrition_carb: str("nutrition_carb"),
+      nutrition_fat: str("nutrition_fat"),
     })
     .eq("id", user.id);
 

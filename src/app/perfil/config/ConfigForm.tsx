@@ -18,6 +18,10 @@ export default function ConfigForm({
     height_cm: number | null;
     goal: string | null;
     sleep_time: string | null;
+    nutrition_kcal: string | null;
+    nutrition_protein: string | null;
+    nutrition_carb: string | null;
+    nutrition_fat: string | null;
   };
 }) {
   const [state, action, pending] = useActionState(saveProfile, initial);
@@ -76,6 +80,28 @@ export default function ConfigForm({
           className={field}
         />
       </label>
+
+      <p className="mt-1 text-xs font-bold uppercase tracking-widest text-muted">
+        Metas de nutrição
+      </p>
+      <div className="grid grid-cols-2 gap-3">
+        <label className="flex flex-col gap-1.5">
+          <span className={label}>Calorias</span>
+          <input name="nutrition_kcal" defaultValue={profile.nutrition_kcal ?? ""} placeholder="2500–2700" className={field} />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className={label}>Proteína</span>
+          <input name="nutrition_protein" defaultValue={profile.nutrition_protein ?? ""} placeholder="170 g" className={field} />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className={label}>Carboidrato</span>
+          <input name="nutrition_carb" defaultValue={profile.nutrition_carb ?? ""} placeholder="250–300 g" className={field} />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className={label}>Gordura</span>
+          <input name="nutrition_fat" defaultValue={profile.nutrition_fat ?? ""} placeholder="70–80 g" className={field} />
+        </label>
+      </div>
 
       {state.error && (
         <p className="rounded-lg border border-brasa-deep/50 bg-brasa-deep/10 px-3 py-2 text-sm text-brasa">

@@ -1,7 +1,24 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 import { WEEK_PLAN, REST_REFERENCE, RUN_PLAN, NUTRITION } from "@/lib/plan";
 
-export default function PlanoPage() {
+export default async function PlanoPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("nutrition_kcal, nutrition_protein, nutrition_carb, nutrition_fat")
+    .eq("id", user!.id)
+    .single();
+  const metas = {
+    kcal: profile?.nutrition_kcal ?? NUTRITION.metas.kcal,
+    proteina: profile?.nutrition_protein ?? NUTRITION.metas.proteina,
+    carbo: profile?.nutrition_carb ?? NUTRITION.metas.carbo,
+    gordura: profile?.nutrition_fat ?? NUTRITION.metas.gordura,
+  };
+
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-5 py-8">
       <header className="flex items-center justify-between">
@@ -72,10 +89,10 @@ export default function PlanoPage() {
         </p>
         <div className="mb-3 grid grid-cols-4 gap-2 text-center">
           {[
-            ["kcal", NUTRITION.metas.kcal],
-            ["Proteína", NUTRITION.metas.proteina],
-            ["Carbo", NUTRITION.metas.carbo],
-            ["Gordura", NUTRITION.metas.gordura],
+            ["kcal", metas.kcal],
+            ["Proteína", metas.proteina],
+            ["Carbo", metas.carbo],
+            ["Gordura", metas.gordura],
           ].map(([k, v]) => (
             <div key={k} className="rounded-lg border border-line bg-carvao p-2">
               <p className="text-sm font-black text-marfim">{v}</p>

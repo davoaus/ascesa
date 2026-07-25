@@ -221,6 +221,10 @@ export type Database = {
           id: string
           last_completed_date: string | null
           longest_streak: number
+          nutrition_carb: string | null
+          nutrition_fat: string | null
+          nutrition_kcal: string | null
+          nutrition_protein: string | null
           onboarded: boolean
           sleep_time: string | null
           xp_total: number
@@ -235,6 +239,10 @@ export type Database = {
           id: string
           last_completed_date?: string | null
           longest_streak?: number
+          nutrition_carb?: string | null
+          nutrition_fat?: string | null
+          nutrition_kcal?: string | null
+          nutrition_protein?: string | null
           onboarded?: boolean
           sleep_time?: string | null
           xp_total?: number
@@ -249,6 +257,10 @@ export type Database = {
           id?: string
           last_completed_date?: string | null
           longest_streak?: number
+          nutrition_carb?: string | null
+          nutrition_fat?: string | null
+          nutrition_kcal?: string | null
+          nutrition_protein?: string | null
           onboarded?: boolean
           sleep_time?: string | null
           xp_total?: number

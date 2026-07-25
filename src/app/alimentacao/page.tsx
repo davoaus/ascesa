@@ -24,7 +24,7 @@ export default async function AlimentacaoPage() {
       supabase.from("xp_events").select("source, amount"),
       supabase
         .from("profiles")
-        .select("current_streak")
+        .select("current_streak, nutrition_kcal, nutrition_protein, nutrition_carb, nutrition_fat")
         .eq("id", user!.id)
         .single(),
       supabase
@@ -61,10 +61,10 @@ export default async function AlimentacaoPage() {
         </p>
         <div className="grid grid-cols-4 gap-2 text-center">
           {[
-            ["kcal", NUTRITION.metas.kcal],
-            ["Proteína", NUTRITION.metas.proteina],
-            ["Carbo", NUTRITION.metas.carbo],
-            ["Gordura", NUTRITION.metas.gordura],
+            ["kcal", profile?.nutrition_kcal ?? NUTRITION.metas.kcal],
+            ["Proteína", profile?.nutrition_protein ?? NUTRITION.metas.proteina],
+            ["Carbo", profile?.nutrition_carb ?? NUTRITION.metas.carbo],
+            ["Gordura", profile?.nutrition_fat ?? NUTRITION.metas.gordura],
           ].map(([k, v]) => (
             <div key={k} className="rounded-lg border border-line bg-carvao p-2">
               <p className="text-sm font-black text-marfim">{v}</p>

@@ -11,7 +11,9 @@ export default async function ConfigPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, bodyweight_kg, height_cm, goal, sleep_time")
+    .select(
+      "display_name, bodyweight_kg, height_cm, goal, sleep_time, nutrition_kcal, nutrition_protein, nutrition_carb, nutrition_fat",
+    )
     .eq("id", user!.id)
     .single();
 
@@ -34,6 +36,10 @@ export default async function ConfigPage() {
             height_cm: null,
             goal: null,
             sleep_time: null,
+            nutrition_kcal: null,
+            nutrition_protein: null,
+            nutrition_carb: null,
+            nutrition_fat: null,
           }
         }
       />
