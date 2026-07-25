@@ -110,7 +110,12 @@ export default async function TreinoPage() {
         <Link href="/musculacao" className="text-sm text-muted hover:text-marfim">
           ← Voltar
         </Link>
-        <p className="text-xs font-black tracking-[0.3em] text-muted">TREINO</p>
+        <Link
+          href="/treino/programa"
+          className="text-sm text-muted hover:text-marfim"
+        >
+          ✏️ Editar programa
+        </Link>
       </header>
 
       <p className="text-2xl font-black text-marfim">

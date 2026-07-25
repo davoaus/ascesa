@@ -1,0 +1,204 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import {
+  addProgram,
+  renameProgram,
+  deleteProgram,
+  addExercise,
+  removeExercise,
+  updateExercise,
+} from "./actions";
+
+export interface ProgEx {
+  id: string; // program_exercise id
+  exerciseId: string;
+  name: string;
+  targetSets: number | null;
+  targetReps: number | null;
+}
+export interface Prog {
+  id: string;
+  name: string;
+  exercises: ProgEx[];
+}
+export interface ExerciseOption {
+  id: string;
+  name: string;
+  primary_muscle: string | null;
+}
+
+const numClass =
+  "w-12 rounded-md border border-line bg-carvao px-1 py-1 text-center text-sm text-marfim tabular-nums focus:border-brasa focus:outline-none";
+
+export default function ProgramEditor({
+  programs,
+  exercises,
+}: {
+  programs: Prog[];
+  exercises: ExerciseOption[];
+}) {
+  const [dayIndex, setDayIndex] = useState(0);
+  const [newEx, setNewEx] = useState(exercises[0]?.id ?? "");
+  const [newSets, setNewSets] = useState("3");
+  const [newReps, setNewReps] = useState("10");
+  const [pending, start] = useTransition();
+
+  const day = programs[Math.min(dayIndex, Math.max(0, programs.length - 1))] ?? null;
+
+  const num = (s: string) => {
+    const n = Number(s);
+    return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* abas dos dias */}
+      <div className="flex flex-wrap gap-2">
+        {programs.map((p, i) => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => setDayIndex(i)}
+            className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${
+              i === dayIndex
+                ? "border-brasa bg-brasa/15 text-brasa"
+                : "border-line bg-carvao-2 text-muted hover:text-marfim"
+            }`}
+          >
+            {p.name}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={() => start(async () => void (await addProgram("Novo dia")))}
+          disabled={pending}
+          className="rounded-full border border-line bg-carvao-2 px-3 py-1.5 text-sm text-muted hover:text-marfim"
+        >
+          ＋ Novo dia
+        </button>
+      </div>
+
+      {day && (
+        <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+          {/* nome do dia + excluir */}
+          <div className="mb-3 flex items-center gap-2">
+            <input
+              defaultValue={day.name}
+              onBlur={(e) => {
+                if (e.target.value.trim() && e.target.value !== day.name)
+                  start(async () => void (await renameProgram(day.id, e.target.value)));
+              }}
+              className="flex-1 rounded-lg border border-line bg-carvao px-3 py-2 text-marfim focus:border-brasa focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm(`Excluir "${day.name}"?`))
+                  start(async () => {
+                    await deleteProgram(day.id);
+                    setDayIndex(0);
+                  });
+              }}
+              className="rounded-lg border border-line px-3 py-2 text-xs text-muted hover:border-brasa-deep hover:text-brasa-deep"
+            >
+              Excluir dia
+            </button>
+          </div>
+
+          {/* exercícios */}
+          <ul className="flex flex-col gap-1.5">
+            {day.exercises.map((ex) => (
+              <li
+                key={ex.id}
+                className="flex items-center gap-2 rounded-lg border border-line bg-carvao px-3 py-2 text-sm"
+              >
+                <span className="flex-1 truncate text-marfim">{ex.name}</span>
+                <input
+                  defaultValue={ex.targetSets ?? ""}
+                  inputMode="numeric"
+                  aria-label="séries"
+                  onBlur={(e) =>
+                    start(async () =>
+                      void (await updateExercise({
+                        id: ex.id,
+                        sets: num(e.target.value),
+                        reps: ex.targetReps,
+                      })),
+                    )
+                  }
+                  className={numClass}
+                />
+                <span className="text-muted">×</span>
+                <input
+                  defaultValue={ex.targetReps ?? ""}
+                  inputMode="numeric"
+                  aria-label="repetições"
+                  onBlur={(e) =>
+                    start(async () =>
+                      void (await updateExercise({
+                        id: ex.id,
+                        sets: ex.targetSets,
+                        reps: num(e.target.value),
+                      })),
+                    )
+                  }
+                  className={numClass}
+                />
+                <button
+                  type="button"
+                  aria-label="Remover"
+                  onClick={() => start(async () => void (await removeExercise(ex.id)))}
+                  className="ml-1 text-muted hover:text-brasa-deep"
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+            {day.exercises.length === 0 && (
+              <li className="text-sm text-muted">Nenhum exercício ainda.</li>
+            )}
+          </ul>
+
+          {/* adicionar exercício */}
+          <div className="mt-3 border-t border-line pt-3">
+            <select
+              value={newEx}
+              onChange={(e) => setNewEx(e.target.value)}
+              className="mb-2 w-full rounded-lg border border-line bg-carvao px-3 py-2 text-marfim focus:border-brasa focus:outline-none"
+            >
+              {exercises.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.name}
+                  {e.primary_muscle ? ` · ${e.primary_muscle}` : ""}
+                </option>
+              ))}
+            </select>
+            <div className="flex items-center gap-2">
+              <input value={newSets} onChange={(e) => setNewSets(e.target.value)} inputMode="numeric" aria-label="séries" className={numClass} />
+              <span className="text-muted">×</span>
+              <input value={newReps} onChange={(e) => setNewReps(e.target.value)} inputMode="numeric" aria-label="repetições" className={numClass} />
+              <button
+                type="button"
+                disabled={pending || !newEx}
+                onClick={() =>
+                  start(async () =>
+                    void (await addExercise({
+                      programId: day.id,
+                      exerciseId: newEx,
+                      sets: num(newSets),
+                      reps: num(newReps),
+                    })),
+                  )
+                }
+                className="ml-auto rounded-lg bg-brasa px-4 py-2 text-sm font-black text-carvao disabled:opacity-50"
+              >
+                Adicionar
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
