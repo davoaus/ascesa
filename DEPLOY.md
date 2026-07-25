@@ -1,6 +1,9 @@
 # Deploy na Vercel
 
-O código já está no GitHub: **github.com/davoaus/ascesa** (privado).
+> ✅ **NO AR:** https://ascesa-lac.vercel.app (produção, scope `powplay`).
+> Pendente: apontar o Supabase para essa URL (ver "Passo 3" abaixo).
+
+O código está no GitHub: **github.com/davoaus/ascesa**.
 O deploy em si precisa da sua conta Vercel (login seu), então são 4 passos rápidos:
 
 ## 1. Importar o projeto
