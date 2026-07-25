@@ -9,6 +9,7 @@ import {
   levelForXp,
 } from "@/lib/areas";
 import { loadMissions } from "./missoes/data";
+import Tutorial from "./Tutorial";
 
 const fmt = (n: number) => n.toLocaleString("pt-BR");
 
@@ -21,7 +22,7 @@ export default async function Home() {
   const [{ data: profile }, { data: events }, missions] = await Promise.all([
     supabase
       .from("profiles")
-      .select("display_name, xp_total, current_streak")
+      .select("display_name, xp_total, current_streak, onboarded")
       .eq("id", user!.id)
       .single(),
     supabase.from("xp_events").select("source, amount"),
@@ -41,6 +42,7 @@ export default async function Home() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-lg flex-col gap-6 px-5 py-8">
+      {!profile?.onboarded && <Tutorial />}
       <header className="flex items-center justify-between">
         <Link href="/perfil" className="group">
           <p className="text-xs font-black tracking-[0.42em] text-muted">ASCESA</p>

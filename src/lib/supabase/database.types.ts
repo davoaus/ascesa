@@ -221,6 +221,7 @@ export type Database = {
           id: string
           last_completed_date: string | null
           longest_streak: number
+          onboarded: boolean
           sleep_time: string | null
           xp_total: number
         }
@@ -234,6 +235,7 @@ export type Database = {
           id: string
           last_completed_date?: string | null
           longest_streak?: number
+          onboarded?: boolean
           sleep_time?: string | null
           xp_total?: number
         }
@@ -247,6 +249,7 @@ export type Database = {
           id?: string
           last_completed_date?: string | null
           longest_streak?: number
+          onboarded?: boolean
           sleep_time?: string | null
           xp_total?: number
         }
