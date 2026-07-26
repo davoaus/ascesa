@@ -42,13 +42,15 @@ export async function signUp(
   });
   if (error) return { error: "Não foi possível criar a conta. Tente outro e-mail." };
 
-  // Com confirmação de e-mail ativa, o cadastro não devolve sessão. Sem este
-  // caminho o usuário seria redirecionado e voltaria ao login sem entender por quê.
+  // Sem confirmação por e-mail (usuário já nasce confirmado no banco): se o
+  // cadastro não devolver sessão, entramos direto com login.
   if (!data.session) {
-    return {
-      notice:
-        "Conta criada. Enviamos um link de confirmação para o seu e-mail — confirme para entrar.",
-    };
+    const { error: signInErr } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (signInErr)
+      return { notice: "Conta criada. Faça login para entrar." };
   }
 
   revalidatePath("/", "layout");
