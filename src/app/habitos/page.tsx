@@ -42,7 +42,7 @@ export default async function HabitosPage() {
         .single(),
       supabase
         .from("habits")
-        .select("id, name, emoji, color")
+        .select("id, name, emoji, color, start_date")
         .eq("archived", false)
         .order("sort_order"),
       supabase
@@ -63,7 +63,13 @@ export default async function HabitosPage() {
       <AreaHeader area={AREA} xp={xp} streak={profile?.current_streak ?? 0} />
 
       <HabitTracker
-        habits={habits ?? []}
+        habits={(habits ?? []).map((h) => ({
+          id: h.id,
+          name: h.name,
+          emoji: h.emoji,
+          color: h.color,
+          startDate: h.start_date,
+        }))}
         initialLogs={initialLogs}
         days={days}
         today={today}

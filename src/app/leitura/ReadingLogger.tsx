@@ -4,24 +4,26 @@ import { useState, useTransition } from "react";
 import { logReading } from "./actions";
 
 export default function ReadingLogger() {
-  const [pages, setPages] = useState("");
+  const [unit, setUnit] = useState<"pages" | "minutes">("pages");
+  const [value, setValue] = useState("");
   const [pending, startTransition] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   function submit() {
-    const p = Number(pages.replace(",", "."));
-    if (!Number.isFinite(p) || p <= 0) {
-      setErr("Informe quantas páginas você leu.");
+    const n = Number(value.replace(",", "."));
+    if (!Number.isFinite(n) || n <= 0) {
+      setErr(unit === "pages" ? "Informe as páginas." : "Informe os minutos.");
       return;
     }
     setErr(null);
     startTransition(async () => {
-      const r = await logReading({ pages: p });
+      const r = await logReading({ amount: n, unit });
       if (r?.error) setErr(r.error);
       else {
-        setMsg(`+${r?.xp} XP por ${Math.round(p)} páginas 📚`);
-        setPages("");
+        const label = unit === "pages" ? "páginas" : "min";
+        setMsg(`+${r?.xp} XP por ${Math.round(n)} ${label} 📚`);
+        setValue("");
       }
     });
   }
@@ -31,17 +33,43 @@ export default function ReadingLogger() {
       <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
         Registrar leitura
       </p>
+
+      <div className="mb-2 flex gap-2">
+        {(
+          [
+            ["pages", "Páginas"],
+            ["minutes", "Minutos"],
+          ] as const
+        ).map(([u, label]) => (
+          <button
+            key={u}
+            type="button"
+            onClick={() => {
+              setUnit(u);
+              setMsg(null);
+            }}
+            className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+              unit === u
+                ? "border-[#b3a4e0] bg-[#b3a4e0]/15 text-[#b3a4e0]"
+                : "border-line bg-carvao text-muted hover:text-marfim"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-[1fr_auto] gap-2">
         <input
           inputMode="numeric"
-          value={pages}
+          value={value}
           onChange={(e) => {
-            setPages(e.target.value);
+            setValue(e.target.value);
             setMsg(null);
           }}
-          placeholder="Páginas lidas"
+          placeholder={unit === "pages" ? "Páginas lidas" : "Minutos de leitura"}
           className="rounded-lg border border-line bg-carvao px-3 py-2.5 text-marfim tabular-nums placeholder:text-muted focus:outline-none"
-          style={{ borderColor: pages ? "#b3a4e0" : undefined }}
+          style={{ borderColor: value ? "#b3a4e0" : undefined }}
         />
         <button
           type="button"

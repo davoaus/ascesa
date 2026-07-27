@@ -1,13 +1,20 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { addHabit, toggleHabit, archiveHabit } from "./actions";
+import {
+  addHabit,
+  toggleHabit,
+  deleteHabit,
+  moveHabit,
+  setHabitStartDate,
+} from "./actions";
 
 export interface Habit {
   id: string;
   name: string;
   emoji: string | null;
   color: string | null;
+  startDate?: string | null;
 }
 
 export default function HabitTracker({
@@ -246,22 +253,58 @@ export default function HabitTracker({
           <summary className="cursor-pointer text-xs font-bold uppercase tracking-widest text-muted">
             Gerenciar hábitos
           </summary>
-          <ul className="mt-3 flex flex-col gap-1.5">
-            {habits.map((h) => (
+          <ul className="mt-3 flex flex-col gap-2">
+            {habits.map((h, i) => (
               <li
                 key={h.id}
-                className="flex items-center justify-between rounded-lg border border-line bg-carvao px-3 py-2 text-sm"
+                className="rounded-lg border border-line bg-carvao px-3 py-2 text-sm"
               >
-                <span className="text-marfim">
-                  {h.emoji} {h.name}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => start(async () => void archiveHabit(h.id))}
-                  className="text-xs text-muted hover:text-brasa-deep"
-                >
-                  arquivar
-                </button>
+                <div className="flex items-center justify-between">
+                  <span className="text-marfim">
+                    {h.emoji} {h.name}
+                  </span>
+                  <span className="flex items-center gap-2 text-muted">
+                    <button
+                      type="button"
+                      aria-label="Mover para cima"
+                      disabled={i === 0}
+                      onClick={() => start(async () => void moveHabit(h.id, "up"))}
+                      className="disabled:opacity-30 hover:text-marfim"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Mover para baixo"
+                      disabled={i === habits.length - 1}
+                      onClick={() => start(async () => void moveHabit(h.id, "down"))}
+                      className="disabled:opacity-30 hover:text-marfim"
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm(`Apagar "${h.name}" e todas as marcações?`))
+                          start(async () => void deleteHabit(h.id));
+                      }}
+                      className="text-xs hover:text-brasa-deep"
+                    >
+                      apagar
+                    </button>
+                  </span>
+                </div>
+                <label className="mt-2 flex items-center gap-2 text-xs text-muted">
+                  Início:
+                  <input
+                    type="date"
+                    defaultValue={h.startDate ?? ""}
+                    onChange={(e) =>
+                      start(async () => void setHabitStartDate(h.id, e.target.value))
+                    }
+                    className="rounded-md border border-line bg-carvao-2 px-2 py-1 text-marfim focus:border-brasa focus:outline-none"
+                  />
+                </label>
               </li>
             ))}
           </ul>

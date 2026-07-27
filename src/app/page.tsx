@@ -79,13 +79,16 @@ export default async function Home() {
         </p>
       </section>
 
-      {/* Missões de hoje */}
+      {/* Hoje — tudo do dia num lugar só */}
       <Link
-        href="/missoes"
-        className="flex items-center justify-between rounded-2xl border border-line bg-carvao-2 px-4 py-3.5 hover:border-brasa"
+        href="/hoje"
+        className="flex items-center justify-between rounded-2xl border border-brasa/50 bg-gradient-to-r from-brasa/15 to-ouro/10 px-4 py-3.5 hover:border-brasa"
       >
-        <span className="flex items-center gap-2 text-sm font-bold text-marfim">
-          🎯 Missões de hoje
+        <span className="flex flex-col">
+          <span className="flex items-center gap-2 text-sm font-black text-marfim">
+            🎯 Hoje
+          </span>
+          <span className="text-xs text-muted">Tarefas, missões e registros do dia</span>
         </span>
         <span className="flex items-center gap-2">
           <span className="text-xs font-black tabular-nums text-brasa">

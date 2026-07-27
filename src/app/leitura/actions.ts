@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveStreak } from "@/lib/game/progression";
 
 const XP_PER_PAGE = 2;
+const XP_PER_MINUTE = 1;
 
 function todayLocal(): string {
   return new Intl.DateTimeFormat("en-CA", {
@@ -13,17 +14,32 @@ function todayLocal(): string {
   }).format(new Date());
 }
 
-/** Registra uma sessão de leitura: XP por página + ofensiva + disciplina. */
-export async function logReading(input: { pages: number }) {
+/** Registra uma sessão de leitura por páginas OU minutos: XP + ofensiva +
+ *  disciplina. */
+export async function logReading(input: {
+  amount: number;
+  unit: "pages" | "minutes";
+}) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/entrar");
 
-  const pages = Math.max(0, Math.round(input.pages));
-  if (pages <= 0) return { error: "Informe quantas páginas você leu." };
-  const xp = pages * XP_PER_PAGE;
+  const amount = Math.max(0, Math.round(input.amount));
+  if (amount <= 0)
+    return {
+      error:
+        input.unit === "pages"
+          ? "Informe quantas páginas você leu."
+          : "Informe quantos minutos você leu.",
+    };
+  const xp =
+    input.unit === "pages" ? amount * XP_PER_PAGE : amount * XP_PER_MINUTE;
+  const disciplinaGain =
+    input.unit === "pages"
+      ? Math.max(1, Math.round(amount / 20))
+      : Math.max(1, Math.round(amount / 30));
   const today = todayLocal();
 
   await supabase
@@ -68,7 +84,7 @@ export async function logReading(input: { pages: number }) {
   if (a) {
     await supabase
       .from("user_attributes")
-      .update({ disciplina: a.disciplina + Math.max(1, Math.round(pages / 20)) })
+      .update({ disciplina: a.disciplina + disciplinaGain })
       .eq("user_id", user.id);
   }
 

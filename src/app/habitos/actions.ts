@@ -15,13 +15,17 @@ function todayLocal(): string {
 
 const PALETTE = ["#8fb6c9", "#b3a4e0", "#a4c46b", "#efc75e", "#f59a2d", "#e4572e"];
 
-export async function addHabit(input: { name: string; emoji?: string }) {
+async function requireUser() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/entrar");
+  return { supabase, user };
+}
 
+export async function addHabit(input: { name: string; emoji?: string }) {
+  const { supabase, user } = await requireUser();
   const name = input.name.trim();
   if (!name) return { error: "Dê um nome ao hábito." };
 
@@ -40,32 +44,72 @@ export async function addHabit(input: { name: string; emoji?: string }) {
   });
 
   revalidatePath("/habitos");
+  revalidatePath("/hoje");
   return { ok: true };
 }
 
 export async function archiveHabit(habitId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/entrar");
+  const { supabase, user } = await requireUser();
   await supabase
     .from("habits")
     .update({ archived: true })
     .eq("id", habitId)
     .eq("user_id", user.id);
   revalidatePath("/habitos");
+  revalidatePath("/hoje");
+  return { ok: true };
+}
+
+/** Apaga o hábito de vez (e, por cascade, todas as marcações dele). */
+export async function deleteHabit(habitId: string) {
+  const { supabase, user } = await requireUser();
+  await supabase.from("habits").delete().eq("id", habitId).eq("user_id", user.id);
+  revalidatePath("/habitos");
+  revalidatePath("/hoje");
+  return { ok: true };
+}
+
+/** Move o hábito para cima/baixo trocando o sort_order com o vizinho. */
+export async function moveHabit(habitId: string, dir: "up" | "down") {
+  const { supabase, user } = await requireUser();
+  const { data: list } = await supabase
+    .from("habits")
+    .select("id, sort_order")
+    .eq("user_id", user.id)
+    .eq("archived", false)
+    .order("sort_order");
+  if (!list) return { ok: false };
+
+  const i = list.findIndex((h) => h.id === habitId);
+  const j = dir === "up" ? i - 1 : i + 1;
+  if (i < 0 || j < 0 || j >= list.length) return { ok: true };
+
+  const a = list[i];
+  const b = list[j];
+  await supabase.from("habits").update({ sort_order: b.sort_order }).eq("id", a.id);
+  await supabase.from("habits").update({ sort_order: a.sort_order }).eq("id", b.id);
+  revalidatePath("/habitos");
+  revalidatePath("/hoje");
+  return { ok: true };
+}
+
+/** Define (ou limpa) a data de início do hábito. */
+export async function setHabitStartDate(habitId: string, date: string | null) {
+  const { supabase, user } = await requireUser();
+  await supabase
+    .from("habits")
+    .update({ start_date: date || null })
+    .eq("id", habitId)
+    .eq("user_id", user.id);
+  revalidatePath("/habitos");
+  revalidatePath("/hoje");
   return { ok: true };
 }
 
 /** Marca/desmarca um hábito num dia. Marcar dá XP à área Hábitos; desmarcar
  *  remove um XP equivalente para manter o placar honesto. */
 export async function toggleHabit(input: { habitId: string; date: string }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/entrar");
+  const { supabase, user } = await requireUser();
 
   const { data: existing } = await supabase
     .from("habit_logs")
@@ -82,7 +126,6 @@ export async function toggleHabit(input: { habitId: string; date: string }) {
   const today = todayLocal();
 
   if (existing) {
-    // desmarcar
     await supabase.from("habit_logs").delete().eq("id", existing.id);
     const { data: ev } = await supabase
       .from("xp_events")
@@ -101,7 +144,6 @@ export async function toggleHabit(input: { habitId: string; date: string }) {
     return { done: false };
   }
 
-  // marcar
   await supabase
     .from("habit_logs")
     .insert({ user_id: user.id, habit_id: input.habitId, log_date: input.date });
