@@ -124,6 +124,33 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_logs: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kind: string
+          log_date: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          kind: string
+          log_date: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          log_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       habit_logs: {
         Row: {
           habit_id: string
@@ -224,6 +251,9 @@ export type Database = {
           id: string
           last_completed_date: string | null
           longest_streak: number
+          meta_dizimo: number | null
+          meta_gastar: number | null
+          meta_poupar: number | null
           nutrition_carb: string | null
           nutrition_fat: string | null
           nutrition_kcal: string | null
@@ -242,6 +272,9 @@ export type Database = {
           id: string
           last_completed_date?: string | null
           longest_streak?: number
+          meta_dizimo?: number | null
+          meta_gastar?: number | null
+          meta_poupar?: number | null
           nutrition_carb?: string | null
           nutrition_fat?: string | null
           nutrition_kcal?: string | null
@@ -260,6 +293,9 @@ export type Database = {
           id?: string
           last_completed_date?: string | null
           longest_streak?: number
+          meta_dizimo?: number | null
+          meta_gastar?: number | null
+          meta_poupar?: number | null
           nutrition_carb?: string | null
           nutrition_fat?: string | null
           nutrition_kcal?: string | null

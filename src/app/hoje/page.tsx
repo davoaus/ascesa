@@ -6,7 +6,7 @@ import TodayHabits from "./TodayHabits";
 import RunLogger from "../corrida/RunLogger";
 import ReadingLogger from "../leitura/ReadingLogger";
 import SleepLogger from "../sono/SleepLogger";
-import SavingLogger from "../financas/SavingLogger";
+import FinanceLogger from "../financas/FinanceLogger";
 
 function spToday(): string {
   return new Intl.DateTimeFormat("en-CA", {
@@ -123,7 +123,7 @@ export default async function HojePage() {
       <RunLogger />
       <ReadingLogger />
       <SleepLogger />
-      <SavingLogger />
+      <FinanceLogger />
     </main>
   );
 }

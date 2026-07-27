@@ -5,26 +5,53 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { resolveStreak } from "@/lib/game/progression";
 
+export type FinanceKind = "poupar" | "gastar" | "dizimo";
+
 function todayLocal(): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Sao_Paulo",
   }).format(new Date());
 }
 
-/** Registra uma economia/aporte do dia: XP proporcional (com teto) + disciplina. */
-export async function logSaving(input: { amount: number }) {
+async function requireUser() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/entrar");
+  return { supabase, user };
+}
 
-  const v = input.amount;
-  if (!Number.isFinite(v) || v <= 0) return { error: "Informe o valor guardado." };
+/**
+ * Registra um lançamento financeiro categorizado do dia.
+ * - `poupar` e `dizimo` são construtivos: dão XP (proporcional, com teto),
+ *   reforçam a Disciplina e mantêm a ofensiva.
+ * - `gastar` é apenas acompanhamento contra o limite do mês: registra o valor,
+ *   sem XP.
+ */
+export async function logFinance(input: { kind: FinanceKind; amount: number }) {
+  const { supabase, user } = await requireUser();
+
+  const v = Number(input.amount);
+  if (!Number.isFinite(v) || v <= 0) return { error: "Informe um valor válido." };
+  const today = todayLocal();
+
+  await supabase.from("finance_logs").insert({
+    user_id: user.id,
+    log_date: today,
+    kind: input.kind,
+    amount: v,
+  });
+
+  // Gasto não gera XP nem ofensiva — só entra no acompanhamento do limite.
+  if (input.kind === "gastar") {
+    revalidatePath("/financas");
+    revalidatePath("/hoje");
+    return { xp: 0 };
+  }
 
   // R$ 10 = 1 XP, com teto de 60 XP por registro (evita farmar valor alto).
   const xp = Math.min(60, Math.max(3, Math.round(v / 10)));
-  const today = todayLocal();
 
   await supabase
     .from("xp_events")
@@ -73,4 +100,33 @@ export async function logSaving(input: { amount: number }) {
 
   revalidatePath("/", "layout");
   return { xp };
+}
+
+/** Compat: registrar economia = poupar. */
+export async function logSaving(input: { amount: number }) {
+  return logFinance({ kind: "poupar", amount: input.amount });
+}
+
+/** Define as metas mensais recorrentes. Campos em branco/0 = sem meta. */
+export async function setFinanceGoals(input: {
+  poupar: number | null;
+  gastar: number | null;
+  dizimo: number | null;
+}) {
+  const { supabase, user } = await requireUser();
+
+  const clean = (n: number | null) =>
+    n != null && Number.isFinite(n) && n > 0 ? n : null;
+
+  await supabase
+    .from("profiles")
+    .update({
+      meta_poupar: clean(input.poupar),
+      meta_gastar: clean(input.gastar),
+      meta_dizimo: clean(input.dizimo),
+    })
+    .eq("id", user.id);
+
+  revalidatePath("/financas");
+  return { ok: true };
 }
