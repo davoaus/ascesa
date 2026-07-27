@@ -65,19 +65,26 @@ export default function HabitTracker({
     });
   }
 
-  // Desempenho (dias decorridos do mês até hoje).
+  // Um hábito só "vale" a partir da sua data de início (se definida).
+  const active = (h: Habit, d: string) => !h.startDate || d >= h.startDate;
+
+  // Desempenho (dias decorridos do mês até hoje), respeitando a data de início.
   const elapsedDays = days.filter((d) => d <= today);
-  const elapsed = Math.max(1, elapsedDays.length);
   const perHabit = habits.map((h) => {
-    const count = setFor(h.id).size;
-    return { ...h, count, rate: count / elapsed };
+    const activeElapsed = elapsedDays.filter((d) => active(h, d));
+    const denom = Math.max(1, activeElapsed.length);
+    const count = activeElapsed.filter((d) => setFor(h.id).has(d)).length;
+    return { ...h, count, denom, rate: count / denom };
   });
-  const perDay = elapsedDays.map((d) => ({
-    d,
-    frac: habits.length
-      ? habits.filter((h) => setFor(h.id).has(d)).length / habits.length
-      : 0,
-  }));
+  const perDay = elapsedDays.map((d) => {
+    const activeHabits = habits.filter((h) => active(h, d));
+    return {
+      d,
+      frac: activeHabits.length
+        ? activeHabits.filter((h) => setFor(h.id).has(d)).length / activeHabits.length
+        : 0,
+    };
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -128,6 +135,17 @@ export default function HabitTracker({
                     {days.map((d) => {
                       const done = set.has(d);
                       const isToday = d === today;
+                      if (!active(h, d)) {
+                        return (
+                          <div
+                            key={d}
+                            className="flex h-7 w-7 shrink-0 items-center justify-center"
+                            aria-hidden
+                          >
+                            <span className="h-1 w-1 rounded-full bg-line/40" />
+                          </div>
+                        );
+                      }
                       return (
                         <button
                           key={d}
@@ -172,7 +190,7 @@ export default function HabitTracker({
                       {h.emoji} {h.name}
                     </span>
                     <span className="tabular-nums text-muted">
-                      {h.count}/{elapsed} · {pct}%
+                      {h.count}/{h.denom} · {pct}%
                     </span>
                   </div>
                   <span className="block h-2 overflow-hidden rounded-full bg-carvao-3">

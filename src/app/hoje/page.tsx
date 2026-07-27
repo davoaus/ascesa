@@ -25,7 +25,7 @@ export default async function HojePage() {
     loadMissions(supabase, user!.id),
     supabase
       .from("habits")
-      .select("id, name, emoji, color")
+      .select("id, name, emoji, color, start_date")
       .eq("archived", false)
       .order("sort_order"),
     supabase
@@ -35,10 +35,16 @@ export default async function HojePage() {
   ]);
 
   const doneIds = new Set((todayLogs ?? []).map((l) => l.habit_id));
-  const todayHabits = (habits ?? []).map((h) => ({
-    ...h,
-    doneToday: doneIds.has(h.id),
-  }));
+  const todayHabits = (habits ?? [])
+    // só hábitos que já começaram (data de início <= hoje ou sem data)
+    .filter((h) => !h.start_date || h.start_date <= today)
+    .map((h) => ({
+      id: h.id,
+      name: h.name,
+      emoji: h.emoji,
+      color: h.color,
+      doneToday: doneIds.has(h.id),
+    }));
 
   const dateLabel = new Intl.DateTimeFormat("pt-BR", {
     weekday: "long",
