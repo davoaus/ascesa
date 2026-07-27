@@ -98,6 +98,13 @@ export default async function PerfilPage() {
           <span>📋 Meu plano · treino, corrida e alimentação</span>
           <span className="text-muted">›</span>
         </Link>
+        <Link
+          href="/perfil/dados"
+          className="mt-2 flex items-center justify-between rounded-lg border border-line bg-carvao px-3 py-2.5 text-sm text-marfim hover:border-brasa"
+        >
+          <span>💾 Dados · backup e restauro (export/import)</span>
+          <span className="text-muted">›</span>
+        </Link>
       </section>
 
       {/* suas áreas */}
