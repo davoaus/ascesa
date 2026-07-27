@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { levelForXp, levelProgress } from "@/lib/game/xp";
 import { AREAS, areaXp, sumXpBySource, rankForLevel } from "@/lib/areas";
+import StrengthProgress, { type ExerciseSeries } from "./StrengthProgress";
 
 const fmt = (n: number) => n.toLocaleString("pt-BR");
 
@@ -29,6 +30,56 @@ export default async function PerfilPage() {
         .select("id", { count: "exact", head: true })
         .eq("completed", true),
     ]);
+
+  // Progressão de força: 1RM estimado (Epley) e tonelagem por sessão/exercício.
+  const { data: recentWorkouts } = await supabase
+    .from("workouts")
+    .select("id, performed_at")
+    .order("performed_at")
+    .limit(80);
+  const wIds = (recentWorkouts ?? []).map((w) => w.id);
+  const [{ data: pSets }, { data: exList }] = await Promise.all([
+    wIds.length
+      ? supabase
+          .from("workout_sets")
+          .select("workout_id, exercise_id, weight_kg, reps, is_warmup")
+          .in("workout_id", wIds)
+      : Promise.resolve({ data: [] as { workout_id: string; exercise_id: string; weight_kg: number; reps: number; is_warmup: boolean }[] }),
+    supabase.from("exercises").select("id, name"),
+  ]);
+  const exName = new Map((exList ?? []).map((e) => [e.id, e.name]));
+  const perfById = new Map((recentWorkouts ?? []).map((w) => [w.id, w.performed_at]));
+
+  // exercise_id -> workout_id -> {best est1rm, tonnage}
+  const acc = new Map<string, Map<string, { e1rm: number; ton: number }>>();
+  for (const s of pSets ?? []) {
+    if (s.is_warmup) continue;
+    const w = Number(s.weight_kg);
+    const r = s.reps;
+    if (!(w > 0) || !(r > 0)) continue;
+    const e1rm = w * (1 + r / 30);
+    if (!acc.has(s.exercise_id)) acc.set(s.exercise_id, new Map());
+    const perW = acc.get(s.exercise_id)!;
+    const cur = perW.get(s.workout_id) ?? { e1rm: 0, ton: 0 };
+    perW.set(s.workout_id, {
+      e1rm: Math.max(cur.e1rm, e1rm),
+      ton: cur.ton + w * r,
+    });
+  }
+  const strengthSeries: ExerciseSeries[] = [];
+  for (const [exId, perW] of acc) {
+    const points = [...perW.entries()]
+      .map(([wid, v]) => ({
+        date: (perfById.get(wid) ?? "").slice(0, 10),
+        e1rm: Math.round(v.e1rm * 10) / 10,
+        ton: Math.round(v.ton),
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+    if (points.length >= 1) {
+      strengthSeries.push({ name: exName.get(exId) ?? "Exercício", points });
+    }
+  }
+  strengthSeries.sort((a, b) => b.points.length - a.points.length);
 
   const xpBySource = sumXpBySource(events ?? []);
   const xpTotal = profile?.xp_total ?? 0;
@@ -106,6 +157,8 @@ export default async function PerfilPage() {
           <span className="text-muted">›</span>
         </Link>
       </section>
+
+      {strengthSeries.length > 0 && <StrengthProgress series={strengthSeries} />}
 
       {/* suas áreas */}
       <section className="rounded-2xl border border-line bg-carvao-2 p-4">
