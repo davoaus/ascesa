@@ -1,17 +1,26 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { WEEK_PLAN, REST_REFERENCE, RUN_PLAN, NUTRITION } from "@/lib/plan";
+import { WEEK_PLAN, REST_REFERENCE, NUTRITION } from "@/lib/plan";
+import { defaultRunWeeks, parseSessions } from "@/lib/runPlan";
 
 export default async function PlanoPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("nutrition_kcal, nutrition_protein, nutrition_carb, nutrition_fat")
-    .eq("id", user!.id)
-    .single();
+  const [{ data: profile }, { data: runRows }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("nutrition_kcal, nutrition_protein, nutrition_carb, nutrition_fat")
+      .eq("id", user!.id)
+      .single(),
+    supabase.from("run_weeks").select("week_no, sessions").order("week_no"),
+  ]);
+
+  const runWeeks =
+    runRows && runRows.length > 0
+      ? runRows.map((r) => ({ weekNo: r.week_no, sessions: parseSessions(r.sessions) }))
+      : defaultRunWeeks();
   const metas = {
     kcal: profile?.nutrition_kcal ?? NUTRITION.metas.kcal,
     proteina: profile?.nutrition_protein ?? NUTRITION.metas.proteina,
@@ -58,24 +67,28 @@ export default async function PlanoPage() {
 
       {/* corrida */}
       <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-        <p className="mb-1 text-xs font-bold uppercase tracking-widest text-muted">
-          Corrida · 4 semanas
-        </p>
-        <p className="mb-3 text-xs text-muted">{RUN_PLAN.days.join("  ·  ")}</p>
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted">
+            Corrida · {runWeeks.length}{" "}
+            {runWeeks.length === 1 ? "semana" : "semanas"}
+          </p>
+          <Link
+            href="/corrida/plano"
+            className="text-xs font-semibold text-aco hover:underline"
+          >
+            Editar
+          </Link>
+        </div>
         <div className="flex flex-col gap-2">
-          {RUN_PLAN.weeks.map((w) => (
-            <div key={w.n} className="rounded-lg border border-line bg-carvao p-3">
-              <p className="mb-1.5 text-xs font-black text-brasa">Semana {w.n}</p>
+          {runWeeks.map((w) => (
+            <div key={w.weekNo} className="rounded-lg border border-line bg-carvao p-3">
+              <p className="mb-1.5 text-xs font-black text-brasa">Semana {w.weekNo}</p>
               <ul className="flex flex-col gap-1 text-sm text-marfim">
-                <li>
-                  <span className="text-muted">Seg:</span> {w.seg}
-                </li>
-                <li>
-                  <span className="text-muted">Qua:</span> {w.qua}
-                </li>
-                <li>
-                  <span className="text-muted">Sáb:</span> {w.sab}
-                </li>
+                {w.sessions.map((s, i) => (
+                  <li key={i}>
+                    <span className="text-muted">{s.day}:</span> {s.desc}
+                  </li>
+                ))}
               </ul>
             </div>
           ))}

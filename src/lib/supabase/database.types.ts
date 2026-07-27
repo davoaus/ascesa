@@ -375,6 +375,30 @@ export type Database = {
         }
         Relationships: []
       }
+      run_weeks: {
+        Row: {
+          created_at: string
+          id: string
+          sessions: Json
+          user_id: string
+          week_no: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sessions?: Json
+          user_id: string
+          week_no: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sessions?: Json
+          user_id?: string
+          week_no?: number
+        }
+        Relationships: []
+      }
       streak_log: {
         Row: {
           completed: boolean

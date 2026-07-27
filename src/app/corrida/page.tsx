@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AREAS, areaXp, sumXpBySource } from "@/lib/areas";
+import { defaultRunWeeks, parseSessions } from "@/lib/runPlan";
 import AreaHeader from "../AreaHeader";
 import RunLogger from "./RunLogger";
-import { RUN_PLAN } from "@/lib/plan";
 
 const AREA = AREAS.find((a) => a.slug === "corrida")!;
 
@@ -13,16 +13,26 @@ export default async function CorridaPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: events }, { data: profile }] = await Promise.all([
+  const [{ data: events }, { data: profile }, { data: rows }] = await Promise.all([
     supabase.from("xp_events").select("source, amount"),
     supabase
       .from("profiles")
       .select("current_streak")
       .eq("id", user!.id)
       .single(),
+    supabase
+      .from("run_weeks")
+      .select("week_no, sessions")
+      .order("week_no")
+      .limit(1),
   ]);
 
   const xp = areaXp(AREA, sumXpBySource(events ?? []));
+
+  const firstWeek =
+    rows && rows.length > 0
+      ? { weekNo: rows[0].week_no, sessions: parseSessions(rows[0].sessions) }
+      : defaultRunWeeks()[0];
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-5 py-8">
@@ -31,29 +41,31 @@ export default async function CorridaPage() {
       <RunLogger />
 
       <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-        <p className="mb-1 text-xs font-bold uppercase tracking-widest text-muted">
-          Plano · esta semana
-        </p>
-        <p className="mb-3 text-xs text-muted">{RUN_PLAN.days.join("  ·  ")}</p>
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted">
+            Plano · Semana {firstWeek.weekNo}
+          </p>
+          <Link
+            href="/corrida/plano"
+            className="text-xs font-semibold text-aco hover:underline"
+          >
+            Editar
+          </Link>
+        </div>
         <div className="rounded-lg border border-line bg-carvao p-3">
-          <p className="mb-1.5 text-xs font-black text-aco">Semana 1</p>
-          <ul className="flex flex-col gap-1 text-sm text-marfim">
-            <li>
-              <span className="text-muted">Seg:</span> {RUN_PLAN.weeks[0].seg}
-            </li>
-            <li>
-              <span className="text-muted">Qua:</span> {RUN_PLAN.weeks[0].qua}
-            </li>
-            <li>
-              <span className="text-muted">Sáb:</span> {RUN_PLAN.weeks[0].sab}
-            </li>
+          <ul className="flex flex-col gap-1.5 text-sm text-marfim">
+            {firstWeek.sessions.map((s, i) => (
+              <li key={i}>
+                <span className="text-muted">{s.day}:</span> {s.desc}
+              </li>
+            ))}
           </ul>
         </div>
         <Link
           href="/perfil/plano"
           className="mt-3 flex items-center justify-between rounded-lg border border-line bg-carvao px-3 py-2.5 text-sm text-marfim hover:border-aco"
         >
-          <span>Ver as 4 semanas</span>
+          <span>Ver o plano completo</span>
           <span className="text-muted">›</span>
         </Link>
       </section>
