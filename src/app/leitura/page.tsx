@@ -2,8 +2,15 @@ import { createClient } from "@/lib/supabase/server";
 import { AREAS, areaXp, sumXpBySource } from "@/lib/areas";
 import AreaHeader from "../AreaHeader";
 import ReadingLogger from "./ReadingLogger";
+import ReadingStartControl from "./ReadingStartControl";
 
 const AREA = AREAS.find((a) => a.slug === "leitura")!;
+
+function spToday(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(
+    new Date(),
+  );
+}
 
 export default async function LeituraPage() {
   const supabase = await createClient();
@@ -15,7 +22,7 @@ export default async function LeituraPage() {
     supabase.from("xp_events").select("source, amount"),
     supabase
       .from("profiles")
-      .select("current_streak")
+      .select("current_streak, reading_start_date")
       .eq("id", user!.id)
       .single(),
   ]);
@@ -27,6 +34,11 @@ export default async function LeituraPage() {
       <AreaHeader area={AREA} xp={xp} streak={profile?.current_streak ?? 0} />
 
       <ReadingLogger />
+
+      <ReadingStartControl
+        startDate={profile?.reading_start_date ?? null}
+        today={spToday()}
+      />
 
       <p className="px-1 text-xs text-muted">
         Cada página lida soma XP para a Leitura e para o seu ranking global —

@@ -14,6 +14,21 @@ function todayLocal(): string {
   }).format(new Date());
 }
 
+/** Define desde quando estou registrando leitura (marco de início). */
+export async function setReadingStartDate(date: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/entrar");
+  await supabase
+    .from("profiles")
+    .update({ reading_start_date: date || null })
+    .eq("id", user.id);
+  revalidatePath("/leitura");
+  return { ok: true };
+}
+
 /** Registra uma sessão de leitura por páginas OU minutos: XP + ofensiva +
  *  disciplina. */
 export async function logReading(input: {

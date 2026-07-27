@@ -79,6 +79,18 @@ export async function addWeek() {
   return { ok: true };
 }
 
+/** Define a data de início do plano (a semana atual passa a avançar sozinha). */
+export async function setRunStartDate(date: string) {
+  const { supabase, user } = await requireUser();
+  await supabase
+    .from("profiles")
+    .update({ run_start_date: date || null })
+    .eq("id", user.id);
+  revalidatePath("/corrida");
+  revalidatePath("/corrida/plano");
+  return { ok: true };
+}
+
 /** Remove uma semana. */
 export async function removeWeek(weekId: string) {
   const { supabase } = await requireUser();

@@ -28,6 +28,20 @@ export function defaultRunWeeks(): { weekNo: number; sessions: RunSession[] }[] 
   }));
 }
 
+/** Semana atual do plano a partir da data de início (1-based, limitada ao total). */
+export function currentWeekNo(
+  startDate: string | null | undefined,
+  today: string,
+  weekCount: number,
+): number {
+  if (!startDate || weekCount === 0) return 1;
+  const start = new Date(startDate + "T12:00:00Z").getTime();
+  const now = new Date(today + "T12:00:00Z").getTime();
+  if (now < start) return 1; // plano ainda não começou
+  const weeks = Math.floor((now - start) / (7 * 86400000));
+  return Math.min(weekCount, weeks + 1);
+}
+
 /** Normaliza o JSONB vindo do banco para RunSession[]. */
 export function parseSessions(raw: unknown): RunSession[] {
   if (!Array.isArray(raw)) return [];

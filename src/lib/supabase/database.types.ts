@@ -259,6 +259,8 @@ export type Database = {
           nutrition_kcal: string | null
           nutrition_protein: string | null
           onboarded: boolean
+          reading_start_date: string | null
+          run_start_date: string | null
           sleep_time: string | null
           xp_total: number
         }
@@ -280,6 +282,8 @@ export type Database = {
           nutrition_kcal?: string | null
           nutrition_protein?: string | null
           onboarded?: boolean
+          reading_start_date?: string | null
+          run_start_date?: string | null
           sleep_time?: string | null
           xp_total?: number
         }
@@ -301,6 +305,8 @@ export type Database = {
           nutrition_kcal?: string | null
           nutrition_protein?: string | null
           onboarded?: boolean
+          reading_start_date?: string | null
+          run_start_date?: string | null
           sleep_time?: string | null
           xp_total?: number
         }
