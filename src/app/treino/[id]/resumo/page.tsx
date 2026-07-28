@@ -65,7 +65,7 @@ export default async function ResumoPage({
       </ul>
 
       <div className="flex items-baseline justify-between px-1">
-        <span className="text-xs font-bold uppercase tracking-widest text-muted">
+        <span className="border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
           Total
         </span>
         <span className="text-4xl font-black tabular-nums text-brasa">
@@ -73,7 +73,7 @@ export default async function ResumoPage({
         </span>
       </div>
 
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
         <div className="mb-2 flex justify-between text-sm">
           <b className="font-black text-marfim">Nível {progress.level}</b>
           <span className="tabular-nums text-muted">

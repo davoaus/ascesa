@@ -38,8 +38,8 @@ export default async function PlanoPage() {
       </header>
 
       {/* semana */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
+        <p className="mb-3 border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
           A semana
         </p>
         <ul className="flex flex-col gap-1.5">
@@ -66,9 +66,9 @@ export default async function PlanoPage() {
       </section>
 
       {/* corrida */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted">
+          <p className="border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
             Corrida · {runWeeks.length}{" "}
             {runWeeks.length === 1 ? "semana" : "semanas"}
           </p>
@@ -96,8 +96,8 @@ export default async function PlanoPage() {
       </section>
 
       {/* alimentação */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-        <p className="mb-1 text-xs font-bold uppercase tracking-widest text-muted">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
+        <p className="mb-1 border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
           Alimentação · {NUTRITION.objetivo}
         </p>
         <div className="mb-3 grid grid-cols-4 gap-2 text-center">

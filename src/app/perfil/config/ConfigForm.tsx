@@ -7,7 +7,7 @@ const initial: ConfigState = {};
 
 const field =
   "w-full rounded-xl border border-line bg-carvao px-4 py-3 text-marfim placeholder:text-muted focus:border-brasa focus:outline-none";
-const label = "text-xs font-bold uppercase tracking-widest text-muted";
+const label = "border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted";
 
 export default function ConfigForm({
   profile,

@@ -86,7 +86,7 @@ export default function ProgramEditor({
       </div>
 
       {day && (
-        <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+        <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
           {/* nome do dia + excluir */}
           <div className="mb-3 flex items-center gap-2">
             <input

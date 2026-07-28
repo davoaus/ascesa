@@ -161,8 +161,8 @@ export default async function PerfilPage() {
       {strengthSeries.length > 0 && <StrengthProgress series={strengthSeries} />}
 
       {/* suas áreas */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
+        <p className="mb-3 border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
           Suas áreas
         </p>
         <ul className="flex flex-col gap-2">
@@ -198,8 +198,8 @@ export default async function PerfilPage() {
       </section>
 
       {/* estatísticas gerais */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
+        <p className="mb-3 border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
           Estatísticas
         </p>
         <div className="grid grid-cols-3 gap-3">
@@ -215,8 +215,8 @@ export default async function PerfilPage() {
       </section>
 
       {/* atributos do personagem (cruzam as áreas) */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
+        <p className="mb-3 border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
           Atributos
         </p>
         <div className="grid grid-cols-3 gap-3">

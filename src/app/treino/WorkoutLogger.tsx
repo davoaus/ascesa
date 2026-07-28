@@ -135,9 +135,9 @@ export default function WorkoutLogger({
 
       {/* checklist do dia — marca ✓ conforme você registra cada exercício */}
       {routine.length > 0 && (
-        <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+        <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
           <div className="mb-2 flex items-baseline justify-between">
-            <p className="text-xs font-bold uppercase tracking-widest text-muted">
+            <p className="border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
               {activeDay?.name ?? "Meu programa"}
             </p>
             <p className="text-xs font-bold tabular-nums text-brasa">
@@ -196,7 +196,7 @@ export default function WorkoutLogger({
       )}
 
       {/* seletor + entrada de série */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
         <select
           value={exerciseId}
           onChange={(e) => setExerciseId(e.target.value)}
@@ -265,7 +265,7 @@ export default function WorkoutLogger({
 
       {/* séries registradas */}
       {sets.length > 0 && (
-        <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+        <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
           <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">
             Séries · {sets.length}
           </p>
@@ -294,7 +294,7 @@ export default function WorkoutLogger({
           </ul>
 
           <div className="mt-3 flex items-baseline justify-between border-t border-line pt-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-muted">
+            <span className="border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
               Volume · XP do treino
             </span>
             <span className="tabular-nums">

@@ -59,10 +59,10 @@ export default async function Home() {
       <section className="rounded-2xl border border-line bg-gradient-to-br from-carvao-3 to-carvao-2 p-5">
         <div className="flex items-baseline justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted">
+            <p className="border-l-[3px] border-ouro pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
               Ranking · Patente
             </p>
-            <p className="text-3xl font-black text-ouro">{rank.name}</p>
+            <p className="mt-1 text-3xl font-black text-ouro">{rank.name}</p>
           </div>
           <div className="text-right">
             <p className="text-3xl font-black tabular-nums text-marfim">
@@ -108,7 +108,7 @@ export default async function Home() {
             <Link
               key={a.slug}
               href={a.route}
-              className="group flex flex-col rounded-2xl border border-line bg-carvao-2 p-4 transition-colors hover:border-[var(--c)]"
+              className="group flex flex-col rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4 transition-colors hover:border-[var(--c)]"
               style={{ ["--c" as string]: a.accent }}
             >
               <div

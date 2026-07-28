@@ -44,7 +44,7 @@ export default async function ConfigPage() {
         }
       />
 
-      <div className="mt-2 rounded-2xl border border-line bg-carvao-2 p-4">
+      <div className="mt-2 rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
         <p className="text-sm text-muted">
           Conta: <span className="text-marfim">{user?.email}</span>
         </p>

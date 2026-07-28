@@ -55,7 +55,7 @@ export default async function AlimentacaoPage() {
         title="Bati a proteína hoje"
       />
 
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
         <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">
           Metas · {NUTRITION.objetivo}
         </p>

@@ -27,12 +27,15 @@ export default function AreaHeader({
       </header>
 
       <section
-        className="rounded-2xl border border-line bg-carvao-2 p-5"
+        className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-5"
         style={{ ["--c" as string]: area.accent }}
       >
         <div className="flex items-baseline justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted">
+            <p
+              className="border-l-[3px] pl-2.5 text-xs font-bold uppercase tracking-widest text-muted"
+              style={{ borderColor: area.accent }}
+            >
               {area.tagline}
             </p>
             <p className="text-4xl font-black tracking-tight text-marfim">

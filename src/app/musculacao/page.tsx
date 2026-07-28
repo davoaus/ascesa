@@ -116,10 +116,10 @@ export default async function MusculacaoPage() {
         </p>
       </header>
 
-      <section className="rounded-2xl border border-line bg-carvao-2 p-5">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-5">
         <div className="flex items-baseline justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted">
+            <p className="border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
               Mundo {world.id} · {world.name}
             </p>
             <p className="text-4xl font-black tracking-tight text-marfim">
@@ -148,8 +148,8 @@ export default async function MusculacaoPage() {
       </section>
 
       {boss && (
-        <section className="rounded-2xl border border-line bg-carvao-2 p-5">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted">
+        <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-5">
+          <p className="border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
             ⚔️ Próximo boss · nível {boss.level}
           </p>
           <p className="mt-1 text-xl font-black text-marfim">{boss.challenge}</p>
@@ -164,7 +164,7 @@ export default async function MusculacaoPage() {
       </Link>
 
       {/* estatísticas de treino */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
         <div className="grid grid-cols-3 gap-3">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
@@ -178,9 +178,9 @@ export default async function MusculacaoPage() {
       </section>
 
       {/* volume por semana */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
         <div className="flex items-baseline justify-between">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted">
+          <p className="border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
             Volume por semana
           </p>
           {weekDelta !== null && (
@@ -253,8 +253,8 @@ export default async function MusculacaoPage() {
 
       {/* níveis por exercício */}
       {(progress ?? []).length > 0 && (
-        <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
+        <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
+          <p className="mb-3 border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
             Níveis por exercício
           </p>
           <ul className="flex flex-col gap-1.5">
@@ -281,7 +281,7 @@ export default async function MusculacaoPage() {
       )}
 
       {recent && recent.length > 0 && (
-        <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+        <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
           <p className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">
             Últimos treinos
           </p>

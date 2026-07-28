@@ -68,9 +68,9 @@ export default async function HojePage() {
       </div>
 
       {/* missões de hoje */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
         <div className="mb-3 flex items-baseline justify-between">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted">
+          <p className="border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
             Missões de hoje
           </p>
           <p className="text-xs font-bold tabular-nums text-brasa">

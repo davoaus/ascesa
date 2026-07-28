@@ -88,8 +88,8 @@ export default function HabitTracker({
 
   return (
     <div className="flex flex-col gap-4">
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
+        <p className="mb-3 border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
           {monthLabel}
         </p>
 
@@ -173,8 +173,8 @@ export default function HabitTracker({
 
       {/* desempenho / padrões */}
       {habits.length > 0 && (
-        <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
+        <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
+          <p className="mb-3 border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
             Desempenho no mês
           </p>
 
@@ -237,8 +237,8 @@ export default function HabitTracker({
       )}
 
       {/* adicionar hábito */}
-      <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
+      <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
+        <p className="mb-3 border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
           Novo hábito
         </p>
         <div className="grid grid-cols-[3rem_1fr] gap-2">
@@ -267,7 +267,7 @@ export default function HabitTracker({
       </section>
 
       {habits.length > 0 && (
-        <details className="rounded-2xl border border-line bg-carvao-2 p-4">
+        <details className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
           <summary className="cursor-pointer text-xs font-bold uppercase tracking-widest text-muted">
             Gerenciar hábitos
           </summary>

@@ -97,9 +97,9 @@ export default function FinanceGoals({ data }: { data: FinanceGoalsData }) {
   }).format(new Date());
 
   return (
-    <section className="rounded-2xl border border-line bg-carvao-2 p-4">
+    <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
       <div className="mb-3 flex items-baseline justify-between">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted">
+        <p className="border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
           Metas do mês
         </p>
         <p className="text-xs capitalize text-muted">{monthLabel}</p>

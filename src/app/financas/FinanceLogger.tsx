@@ -42,8 +42,8 @@ export default function FinanceLogger() {
   }
 
   return (
-    <section className="rounded-2xl border border-line bg-carvao-2 p-4">
-      <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted">
+    <section className="rounded-2xl border border-line bg-gradient-to-b from-carvao-2 to-carvao-3 p-4">
+      <p className="mb-3 border-l-[3px] border-brasa pl-2.5 text-xs font-bold uppercase tracking-widest text-muted">
         Registrar lançamento
       </p>
 
