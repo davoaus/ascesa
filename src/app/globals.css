@@ -30,3 +30,53 @@ body {
     var(--color-carvao);
   color: var(--color-marfim);
 }
+
+/* Fluidez — transições suaves e feedback tátil de toque */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a,
+  button,
+  summary,
+  label,
+  input,
+  select,
+  textarea,
+  [role="button"] {
+    transition:
+      transform 0.14s cubic-bezier(0.2, 0.7, 0.3, 1),
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      color 0.18s ease,
+      box-shadow 0.2s ease,
+      opacity 0.18s ease;
+  }
+
+  /* "afundar" levemente ao pressionar controles clicáveis */
+  button:not(:disabled):active,
+  a:active,
+  [role="button"]:active {
+    transform: scale(0.97);
+  }
+
+  /* preenchimentos de barra/círculo animam a mudança */
+  [style*="width:"],
+  [style*="background-color:"] {
+    transition:
+      width 0.35s cubic-bezier(0.2, 0.7, 0.3, 1),
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
