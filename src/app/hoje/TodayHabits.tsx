@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toggleHabit } from "../habitos/actions";
+import { celebrateFrom } from "../celebrate";
 
 export interface TodayHabit {
   id: string;
@@ -23,7 +24,9 @@ export default function TodayHabits({
   );
   const [pending, start] = useTransition();
 
-  function toggle(id: string) {
+  function toggle(id: string, e: React.MouseEvent) {
+    const willComplete = !done.has(id);
+    if (willComplete) celebrateFrom(e.currentTarget, 14);
     setDone((prev) => {
       const s = new Set(prev);
       if (s.has(id)) s.delete(id);
@@ -57,14 +60,16 @@ export default function TodayHabits({
               <button
                 type="button"
                 disabled={pending}
-                onClick={() => toggle(h.id)}
+                onClick={(e) => toggle(h.id, e)}
                 className={`flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-sm transition-colors ${
                   isDone ? "border-line bg-carvao" : "border-line bg-carvao hover:border-muted"
                 }`}
               >
                 <span className="flex items-center gap-2.5">
                   <span
-                    className="flex h-5 w-5 items-center justify-center rounded-full border text-xs"
+                    className={`flex h-5 w-5 items-center justify-center rounded-full border text-xs ${
+                      isDone ? "pop" : ""
+                    }`}
                     style={
                       isDone
                         ? { backgroundColor: color, borderColor: color, color: "#131009" }

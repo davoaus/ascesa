@@ -10,6 +10,7 @@ import {
 } from "@/lib/areas";
 import { loadMissions } from "./missoes/data";
 import Tutorial from "./Tutorial";
+import CountUp from "./CountUp";
 
 const fmt = (n: number) => n.toLocaleString("pt-BR");
 
@@ -65,9 +66,10 @@ export default async function Home() {
             <p className="mt-1 text-3xl font-black text-ouro">{rank.name}</p>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-black tabular-nums text-marfim">
-              {fmt(xpTotal)}
-            </p>
+            <CountUp
+              value={xpTotal}
+              className="block text-3xl font-black tabular-nums text-marfim"
+            />
             <p className="text-xs text-muted">pontos · 🔥 {streak}</p>
           </div>
         </div>

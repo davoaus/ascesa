@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { levelProgress } from "@/lib/game/xp";
 import type { Area } from "@/lib/areas";
+import CountUp from "./CountUp";
 
 const fmt = (n: number) => n.toLocaleString("pt-BR");
 
@@ -51,7 +52,9 @@ export default function AreaHeader({
             <span>
               {fmt(prog.xpIntoLevel)} / {fmt(prog.xpForNextLevel)} XP
             </span>
-            <span>{fmt(xp)} XP na área</span>
+            <span>
+              <CountUp value={xp} /> XP na área
+            </span>
           </div>
           <div className="h-2.5 overflow-hidden rounded-full bg-carvao">
             <div

@@ -8,6 +8,7 @@ import {
   moveHabit,
   setHabitStartDate,
 } from "./actions";
+import { celebrateFrom } from "../celebrate";
 
 export interface Habit {
   id: string;
@@ -43,7 +44,9 @@ export default function HabitTracker({
     return logs[habitId] ?? new Set();
   }
 
-  function toggle(habitId: string, date: string) {
+  function toggle(habitId: string, date: string, e?: React.MouseEvent) {
+    const willComplete = !(logs[habitId] ?? new Set()).has(date);
+    if (willComplete && e) celebrateFrom(e.currentTarget, 12);
     setLogs((prev) => {
       const s = new Set(prev[habitId] ?? []);
       if (s.has(date)) s.delete(date);
@@ -150,7 +153,7 @@ export default function HabitTracker({
                         <button
                           key={d}
                           type="button"
-                          onClick={() => toggle(h.id, d)}
+                          onClick={(e) => toggle(h.id, d, e)}
                           className="flex h-7 w-7 shrink-0 items-center justify-center"
                           aria-label={`${h.name} ${d}`}
                         >
