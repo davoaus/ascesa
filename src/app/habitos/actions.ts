@@ -93,6 +93,23 @@ export async function moveHabit(habitId: string, dir: "up" | "down") {
   return { ok: true };
 }
 
+/** Reordena todos os hábitos de uma vez, na ordem recebida (arrastar-e-soltar). */
+export async function reorderHabits(orderedIds: string[]) {
+  const { supabase, user } = await requireUser();
+  await Promise.all(
+    orderedIds.map((id, i) =>
+      supabase
+        .from("habits")
+        .update({ sort_order: i + 1 })
+        .eq("id", id)
+        .eq("user_id", user.id),
+    ),
+  );
+  revalidatePath("/habitos");
+  revalidatePath("/hoje");
+  return { ok: true };
+}
+
 /** Define (ou limpa) a data de início do hábito. */
 export async function setHabitStartDate(habitId: string, date: string | null) {
   const { supabase, user } = await requireUser();
