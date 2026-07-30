@@ -7,10 +7,8 @@ import {
   deleteProgram,
   addExercise,
   addCustomExercise,
-  moveExercise,
-  removeExercise,
-  updateExercise,
 } from "./actions";
+import ExerciseList from "./ExerciseList";
 
 export interface ProgEx {
   id: string; // program_exercise id
@@ -112,79 +110,8 @@ export default function ProgramEditor({
             </button>
           </div>
 
-          {/* exercícios */}
-          <ul className="flex flex-col gap-1.5">
-            {day.exercises.map((ex, exIdx) => (
-              <li
-                key={ex.id}
-                className="flex items-center gap-2 rounded-lg border border-line bg-carvao px-3 py-2 text-sm"
-              >
-                <span className="flex flex-col leading-none">
-                  <button
-                    type="button"
-                    aria-label="Subir"
-                    disabled={exIdx === 0 || pending}
-                    onClick={() => start(async () => void (await moveExercise(ex.id, "up")))}
-                    className="text-xs text-muted hover:text-marfim disabled:opacity-30"
-                  >
-                    ▲
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Descer"
-                    disabled={exIdx === day.exercises.length - 1 || pending}
-                    onClick={() => start(async () => void (await moveExercise(ex.id, "down")))}
-                    className="text-xs text-muted hover:text-marfim disabled:opacity-30"
-                  >
-                    ▼
-                  </button>
-                </span>
-                <span className="flex-1 truncate text-marfim">{ex.name}</span>
-                <input
-                  defaultValue={ex.targetSets ?? ""}
-                  inputMode="numeric"
-                  aria-label="séries"
-                  onBlur={(e) =>
-                    start(async () =>
-                      void (await updateExercise({
-                        id: ex.id,
-                        sets: num(e.target.value),
-                        reps: ex.targetReps,
-                      })),
-                    )
-                  }
-                  className={numClass}
-                />
-                <span className="text-muted">×</span>
-                <input
-                  defaultValue={ex.targetReps ?? ""}
-                  inputMode="numeric"
-                  aria-label="repetições"
-                  onBlur={(e) =>
-                    start(async () =>
-                      void (await updateExercise({
-                        id: ex.id,
-                        sets: ex.targetSets,
-                        reps: num(e.target.value),
-                      })),
-                    )
-                  }
-                  className={numClass}
-                />
-                <button
-                  type="button"
-                  aria-label="Remover"
-                  onClick={() => start(async () => void (await removeExercise(ex.id)))}
-                  className="ml-1 text-muted hover:text-brasa-deep"
-                >
-                  ✕
-                </button>
-              </li>
-            ))}
-            {day.exercises.length === 0 && (
-              <li className="text-sm text-muted">Nenhum exercício ainda.</li>
-            )}
-          </ul>
+          {/* exercícios — arraste pelo ⋮⋮ para reordenar */}
+          <ExerciseList key={day.id} exercises={day.exercises} />
 
           {/* adicionar exercício */}
           <div className="mt-3 border-t border-line pt-3">

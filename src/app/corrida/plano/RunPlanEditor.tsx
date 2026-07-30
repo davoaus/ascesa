@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveWeekSessions, addWeek, removeWeek, seedRunPlan } from "./actions";
 import type { RunSession } from "@/lib/runPlan";
@@ -18,8 +18,47 @@ function WeekCard({ week }: { week: Week }) {
   const [sessions, setSessions] = useState<RunSession[]>(week.sessions);
   const [pending, start] = useTransition();
   const [saved, setSaved] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const sessionsRef = useRef(sessions);
+  sessionsRef.current = sessions;
 
   const dirty = JSON.stringify(sessions) !== JSON.stringify(week.sessions);
+
+  function beginDrag(e: React.PointerEvent, i: number) {
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    setDragIndex(i);
+  }
+  function onMove(e: React.PointerEvent) {
+    if (dragIndex == null) return;
+    const y = e.clientY;
+    let target = sessions.length - 1;
+    for (let k = 0; k < sessions.length; k++) {
+      const el = rowRefs.current[k];
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (y < r.top + r.height / 2) {
+        target = k;
+        break;
+      }
+    }
+    if (target === dragIndex) return;
+    setSessions((prev) => {
+      const next = [...prev];
+      const [m] = next.splice(dragIndex, 1);
+      next.splice(target, 0, m);
+      return next;
+    });
+    setDragIndex(target);
+    setSaved(false);
+  }
+  function endDrag() {
+    if (dragIndex == null) return;
+    setDragIndex(null);
+    start(async () => {
+      await saveWeekSessions(week.id, sessionsRef.current);
+    });
+  }
 
   function patch(i: number, field: keyof RunSession, value: string) {
     setSessions((prev) => prev.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)));
@@ -66,7 +105,26 @@ function WeekCard({ week }: { week: Week }) {
 
       <div className="flex flex-col gap-2">
         {sessions.map((s, i) => (
-          <div key={i} className="flex items-start gap-2">
+          <div
+            key={i}
+            ref={(el) => {
+              rowRefs.current[i] = el;
+            }}
+            onPointerMove={onMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+            className={`flex items-start gap-2 rounded-lg ${
+              dragIndex === i ? "opacity-90 shadow-lg shadow-black/40" : ""
+            }`}
+          >
+            <button
+              type="button"
+              aria-label="Arrastar para reordenar"
+              onPointerDown={(e) => beginDrag(e, i)}
+              className="mt-2 shrink-0 cursor-grab touch-none select-none px-0.5 text-muted hover:text-marfim active:cursor-grabbing"
+            >
+              ⋮⋮
+            </button>
             <input
               value={s.day}
               onChange={(e) => patch(i, "day", e.target.value)}

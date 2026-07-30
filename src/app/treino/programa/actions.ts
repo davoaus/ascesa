@@ -179,6 +179,22 @@ export async function moveExercise(programExerciseId: string, dir: "up" | "down"
   return { ok: true };
 }
 
+/** Reordena os exercícios de um dia de uma vez (arrastar-e-soltar). */
+export async function reorderExercises(orderedIds: string[]) {
+  const { supabase } = await requireUser();
+  await Promise.all(
+    orderedIds.map((id, i) =>
+      supabase
+        .from("program_exercises")
+        .update({ sort_order: i + 1 })
+        .eq("id", id),
+    ),
+  );
+  revalidatePath("/treino/programa");
+  revalidatePath("/treino");
+  return { ok: true };
+}
+
 export async function removeExercise(programExerciseId: string) {
   const { supabase } = await requireUser();
   await supabase.from("program_exercises").delete().eq("id", programExerciseId);
