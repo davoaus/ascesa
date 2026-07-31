@@ -15,6 +15,7 @@ export interface RoutineItem {
   name: string;
   targetSets: number | null;
   targetReps: number | null;
+  variants: string[];
 }
 
 export interface ProgramDay {
@@ -52,8 +53,18 @@ export default function WorkoutLogger({
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
   const [sets, setSets] = useState<LoggedSet[]>([]);
+  const [variantByExercise, setVariantByExercise] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  const activeItem = routine.find((r) => r.id === exerciseId) ?? null;
+  const currentVariant =
+    variantByExercise[exerciseId] ?? activeItem?.variants[0] ?? null;
+
+  function selectVariant(itemId: string, v: string) {
+    setExerciseId(itemId);
+    setVariantByExercise((prev) => ({ ...prev, [itemId]: v }));
+  }
 
   const nameById = useMemo(
     () => new Map(exercises.map((e) => [e.id, e.name])),
@@ -83,7 +94,7 @@ export default function WorkoutLogger({
     setError(null);
     setSets((prev) => [
       ...prev,
-      { exerciseId, weightKg: w, reps: r, isWarmup: false },
+      { exerciseId, weightKg: w, reps: r, isWarmup: false, variant: currentVariant },
     ]);
     setReps("");
   }
@@ -188,6 +199,28 @@ export default function WorkoutLogger({
                       </span>
                     ) : null}
                   </button>
+                  {item.variants.length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap gap-1.5 pl-8">
+                      {item.variants.map((v) => {
+                        const sel =
+                          (variantByExercise[item.id] ?? item.variants[0]) === v;
+                        return (
+                          <button
+                            key={v}
+                            type="button"
+                            onClick={() => selectVariant(item.id, v)}
+                            className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${
+                              sel
+                                ? "border-brasa bg-brasa/15 text-brasa"
+                                : "border-line bg-carvao text-muted hover:text-marfim"
+                            }`}
+                          >
+                            {v}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </li>
               );
             })}
@@ -275,7 +308,12 @@ export default function WorkoutLogger({
                 key={i}
                 className="flex items-center justify-between rounded-lg border border-line bg-carvao px-3 py-2 text-sm"
               >
-                <span className="text-marfim">{nameById.get(s.exerciseId)}</span>
+                <span className="text-marfim">
+                  {nameById.get(s.exerciseId)}
+                  {s.variant ? (
+                    <span className="ml-1.5 text-xs text-aco">· {s.variant}</span>
+                  ) : null}
+                </span>
                 <span className="flex items-center gap-3">
                   <span className="tabular-nums text-muted">
                     {s.weightKg} kg × {s.reps}

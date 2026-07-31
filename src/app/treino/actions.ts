@@ -11,6 +11,7 @@ export interface LoggedSet {
   weightKg: number;
   reps: number;
   isWarmup: boolean;
+  variant?: string | null;
 }
 
 export interface FinishWorkoutInput {
@@ -107,6 +108,7 @@ export async function finishWorkout(input: FinishWorkoutInput) {
     reps: s.reps,
     is_warmup: s.isWarmup,
     is_pr: !s.isWarmup && prExerciseIds.has(s.exerciseId),
+    variant: s.variant ?? null,
   }));
   await supabase.from("workout_sets").insert(rows);
 

@@ -320,6 +320,7 @@ export type Database = {
           sort_order: number
           target_reps: number | null
           target_sets: number | null
+          variants: string[]
         }
         Insert: {
           exercise_id: string
@@ -328,6 +329,7 @@ export type Database = {
           sort_order?: number
           target_reps?: number | null
           target_sets?: number | null
+          variants?: string[]
         }
         Update: {
           exercise_id?: string
@@ -336,6 +338,7 @@ export type Database = {
           sort_order?: number
           target_reps?: number | null
           target_sets?: number | null
+          variants?: string[]
         }
         Relationships: [
           {
@@ -467,6 +470,7 @@ export type Database = {
           is_warmup: boolean
           reps: number
           set_index: number
+          variant: string | null
           volume_kg: number | null
           weight_kg: number
           workout_id: string
@@ -478,6 +482,7 @@ export type Database = {
           is_warmup?: boolean
           reps?: number
           set_index: number
+          variant?: string | null
           volume_kg?: number | null
           weight_kg?: number
           workout_id: string
@@ -489,6 +494,7 @@ export type Database = {
           is_warmup?: boolean
           reps?: number
           set_index?: number
+          variant?: string | null
           volume_kg?: number | null
           weight_kg?: number
           workout_id?: string

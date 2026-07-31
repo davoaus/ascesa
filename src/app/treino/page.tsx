@@ -17,7 +17,7 @@ export default async function TreinoPage() {
 
   const { data: allProgramExercises } = await supabase
     .from("program_exercises")
-    .select("program_id, exercise_id, target_sets, target_reps, sort_order")
+    .select("program_id, exercise_id, target_sets, target_reps, sort_order, variants")
     .order("sort_order");
 
   const exerciseById = new Map((exercises ?? []).map((e) => [e.id, e]));
@@ -98,6 +98,7 @@ export default async function TreinoPage() {
               name: ex.name,
               targetSets: pe.target_sets,
               targetReps: pe.target_reps,
+              variants: pe.variants ?? [],
             }
           : null;
       })
