@@ -6,7 +6,7 @@ import { markOnboarded } from "./onboard";
 const STEPS = [
   {
     icon: "🔥",
-    title: "Bem-vindo ao ASCESA",
+    title: "Bem-vindo ao FitQuest",
     body:
       "Uma plataforma para você evoluir em várias áreas da vida — e virar a melhor versão de si mesmo. O seu maior adversário é você mesmo.",
   },

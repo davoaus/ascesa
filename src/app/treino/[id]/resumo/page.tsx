@@ -39,7 +39,7 @@ export default async function ResumoPage({
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-5 py-10">
       <header className="text-center">
-        <p className="text-xs font-black tracking-[0.42em] text-muted">ASCESA</p>
+        <p className="text-xs font-black tracking-[0.42em] text-muted">FitQuest</p>
         <p className="mt-4 text-xs font-black uppercase tracking-[0.3em] text-brasa">
           Vitória
         </p>

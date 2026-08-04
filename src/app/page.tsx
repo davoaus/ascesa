@@ -46,7 +46,7 @@ export default async function Home() {
       {!profile?.onboarded && <Tutorial />}
       <header className="flex items-center justify-between">
         <Link href="/perfil" className="group">
-          <p className="text-xs font-black tracking-[0.42em] text-muted">ASCESA</p>
+          <p className="text-xs font-black tracking-[0.42em] text-muted">FitQuest</p>
           <p className="text-sm text-muted group-hover:text-marfim">
             Olá, {profile?.display_name ?? "Atleta"} →
           </p>

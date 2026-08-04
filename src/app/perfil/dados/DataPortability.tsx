@@ -20,7 +20,7 @@ export default function DataPortability() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `ascesa-treino-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `fitquest-treino-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
       setMsg(`Backup gerado: ${data.workouts.length} treinos.`);

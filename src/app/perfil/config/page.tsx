@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/entrar/actions";
 import ConfigForm from "./ConfigForm";
+import ChangePassword from "./ChangePassword";
 
 export default async function ConfigPage() {
   const supabase = await createClient();
@@ -50,7 +51,9 @@ export default async function ConfigPage() {
         </p>
       </div>
 
-      <form action={signOut} className="mt-auto">
+      <ChangePassword />
+
+      <form action={signOut} className="mt-8">
         <button className="w-full rounded-xl border border-line px-4 py-3 text-sm text-muted hover:border-brasa-deep hover:text-brasa">
           Sair da conta
         </button>

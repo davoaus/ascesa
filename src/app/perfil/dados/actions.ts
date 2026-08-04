@@ -15,7 +15,7 @@ async function requireUser() {
 
 export interface TrainingExport {
   version: 1;
-  app: "ascesa";
+  app: "fitquest";
   exported_at: string;
   profile: Record<string, unknown> | null;
   workouts: {
@@ -80,7 +80,7 @@ export async function exportTrainingData(): Promise<TrainingExport> {
 
   return {
     version: 1,
-    app: "ascesa",
+    app: "fitquest",
     exported_at: new Date().toISOString(),
     profile: profile ?? null,
     workouts: (workouts ?? []).map((w) => ({
@@ -111,8 +111,13 @@ export async function importTrainingData(payload: unknown) {
   const { supabase, user } = await requireUser();
 
   const data = payload as Partial<TrainingExport>;
-  if (!data || data.app !== "ascesa" || !Array.isArray(data.workouts)) {
-    return { error: "Arquivo inválido — esperado um backup do ASCESA." };
+  const appId = data.app as unknown as string;
+  if (
+    !data ||
+    (appId !== "fitquest" && appId !== "ascesa") ||
+    !Array.isArray(data.workouts)
+  ) {
+    return { error: "Arquivo inválido — esperado um backup do FitQuest." };
   }
 
   const { data: existing } = await supabase

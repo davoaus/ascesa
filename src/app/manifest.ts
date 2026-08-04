@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "ASCESA — suba de nível na vida real",
-    short_name: "ASCESA",
+    name: "FitQuest — suba de nível na vida real",
+    short_name: "FitQuest",
     description:
       "O RPG onde sua evolução física real é o progresso. O seu maior adversário é você mesmo.",
     start_url: "/",

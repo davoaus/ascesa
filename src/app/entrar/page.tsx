@@ -13,7 +13,7 @@ export default function EntrarPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 px-6 py-10">
       <header className="text-center">
-        <p className="text-sm font-black tracking-[0.42em] text-marfim">ASCESA</p>
+        <p className="text-sm font-black tracking-[0.42em] text-marfim">FitQuest</p>
         <p className="mt-3 text-3xl font-black leading-tight text-marfim">
           O seu maior adversário <span className="text-brasa">é você mesmo</span>.
         </p>
