@@ -16,6 +16,8 @@ export interface RoutineItem {
   targetSets: number | null;
   targetReps: number | null;
   variants: string[];
+  icon: string;
+  imageUrl: string | null;
 }
 
 export interface ProgramDay {
@@ -180,6 +182,18 @@ export default function WorkoutLogger({
                         aria-hidden
                       >
                         ✓
+                      </span>
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-line bg-carvao-2 text-lg">
+                        {item.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={item.imageUrl}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span aria-hidden>{item.icon}</span>
+                        )}
                       </span>
                       <span
                         className={

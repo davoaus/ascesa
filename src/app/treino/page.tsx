@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { muscleIcon } from "@/lib/muscleIcon";
 import WorkoutLogger from "./WorkoutLogger";
 
 export default async function TreinoPage() {
   const supabase = await createClient();
   const { data: exercises } = await supabase
     .from("exercises")
-    .select("id, name, primary_muscle")
+    .select("id, name, primary_muscle, category, image_url")
     .order("name");
 
   // Programas do usuário — a rotina (split de dias) que aparece pré-carregada.
@@ -99,6 +100,8 @@ export default async function TreinoPage() {
               targetSets: pe.target_sets,
               targetReps: pe.target_reps,
               variants: pe.variants ?? [],
+              icon: muscleIcon(ex.category),
+              imageUrl: ex.image_url,
             }
           : null;
       })

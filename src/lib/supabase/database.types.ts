@@ -94,6 +94,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          image_url: string | null
           is_bodyweight: boolean
           is_default: boolean
           name: string
@@ -105,6 +106,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          image_url?: string | null
           is_bodyweight?: boolean
           is_default?: boolean
           name: string
@@ -116,6 +118,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          image_url?: string | null
           is_bodyweight?: boolean
           is_default?: boolean
           name?: string
